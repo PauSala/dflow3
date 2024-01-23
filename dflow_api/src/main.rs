@@ -1,6 +1,7 @@
 pub mod modules;
 pub mod template_dir;
 use modules::datasource::infrastructure::routes::datasource_routes;
+use modules::dmodel::infrastructure::routes::dmodel_routes;
 use modules::shared::persistence::SqliteConnection;
 use modules::shared::shared_state::shared_connections::SharedConnections;
 use rocket::launch;
@@ -45,4 +46,5 @@ fn rocket() -> _ {
             mssql_pool: None,
         }))
         .mount("/datasource", datasource_routes())
+        .mount("/model", dmodel_routes())
 }

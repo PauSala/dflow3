@@ -22,6 +22,17 @@ pub(crate) struct SaveDatasourceRequest<'a> {
     pub(crate) datasource_type: DataSourceType,
 }
 
+/// route: http://127.0.0.1:8000/datasource/save
+/// Example request
+/// ```
+/// {
+///     "datasource_id": "",
+///     "datasource_name": "",
+///     "datasource_type": {
+///       "Sql": "Postgresql"
+///     }
+/// }
+/// ```
 #[post("/save", data = "<datasource_req>")]
 pub(crate) async fn post_datasource_handler(
     mut db: Connection<Db>,

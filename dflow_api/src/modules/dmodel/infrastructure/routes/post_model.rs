@@ -1,0 +1,66 @@
+use rocket::http::Status;
+use rocket::tokio::sync::RwLock;
+use rocket::{post, serde::json::Json, State};
+use rocket_db_pools::Connection;
+use serde::Deserialize;
+
+use crate::modules::datasource::model::datasource_type::DataSourceType;
+use crate::modules::dmodel::application::model_saver::ModelSaverService;
+use crate::modules::dmodel::infrastructure::persistence::model_saver::ModelStorer;
+use crate::modules::dmodel::model::model::Model;
+use crate::modules::dmodel::model::model_builder::model_builder_factory;
+use crate::modules::shared::shared_state::shared_connections::SharedConnections;
+use crate::template_dir::{http500, Error500Template};
+use crate::Db;
+
+#[derive(Debug, PartialEq, Eq, Clone, Deserialize)]
+pub(crate) struct ModelRequest<'a> {
+    pub(crate) datasource_id: &'a str,
+    pub(crate) model_id: &'a str,
+    pub(crate) datasource_type: DataSourceType,
+}
+
+/// generate model from datasource (datasource and associated config must exist)  
+/// ```
+/// route: http://127.0.0.1:8000/model/save
+///
+/// {
+///     "datasource_id": "test",
+///     "model_id": "RustTest",
+///     "datasource_type": {
+///         "Sql": "Postgresql"
+///      }
+/// }
+/// ```
+#[post("/save", data = "<model_req>")]
+pub(crate) async fn post_model_handler(
+    mut db: Connection<Db>,
+    shared_cns: &State<RwLock<SharedConnections>>,
+    model_req: Json<ModelRequest<'_>>,
+) -> Result<Json<Model>, (Status, Error500Template)> {
+    let model_builder = model_builder_factory(
+        model_req.datasource_type.clone(),
+        &model_req.datasource_id,
+        &mut db,
+        shared_cns,
+    )
+    .await;
+
+    match model_builder {
+        Err(e) => Err(http500(e)),
+        Ok(mut model_builder) => {
+            let mut model_serializer = ModelStorer::new(&mut db);
+            let mut saver_service = ModelSaverService::new();
+            let model = saver_service
+                .run(
+                    &model_req.datasource_id,
+                    &model_req.model_id,
+                    &mut model_builder,
+                    &mut model_serializer,
+                )
+                .await;
+
+            model.map(|model| Json(model)).map_err(|e| http500(e))
+        }
+    }
+}
