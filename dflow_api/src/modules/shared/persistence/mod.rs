@@ -26,7 +26,7 @@ impl SqliteConnection {
     fn table_sql_connection(&self, cn: &Connection) -> Result<()> {
         cn.execute(
             "CREATE TABLE IF NOT EXISTS sql_configurations (
-                datasource_id TEXT NOT NULL,
+                datasource_id TEXT primary key,
                 host TEXT NOT NULL,
                 port INTEGER NOT NULL,
                 user TEXT NOT NULL,

@@ -6,8 +6,8 @@ use serde::Deserialize;
 
 use crate::modules::datasource::infrastructure::factory::configuration_factory::configuration_factory;
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
-use crate::modules::query::infrastructure::factory::query_runner_factory::query_runner_factory;
 use crate::modules::query::application::user_query_executor::user_query_executor;
+use crate::modules::query::infrastructure::factory::query_runner_factory::query_runner_factory;
 use crate::modules::query::model::query_builder::abstract_query::AbstractQuery;
 use crate::modules::query::model::query_executor::QueryResult;
 use crate::modules::shared::shared_state::shared_connections::SharedConnections;
@@ -59,7 +59,17 @@ pub struct UserQueryRequest<'a> {
 ///             }
 ///         ],
 ///         "model_id": "test",
-///         "filters": []
+///                "filters": [
+///                     {
+///                         "column_name": "productname",
+///                         "table_name": "products",
+///                         "column_id": 3,
+///                         "table_id": 5,
+///                         "operator": "NotEq",
+///                         "value": { "UniValue": {"Text":"Spegesild"}},
+///                         "data_type": "Text"
+///                     }
+///                ]
 ///     }
 /// }
 /// ```
