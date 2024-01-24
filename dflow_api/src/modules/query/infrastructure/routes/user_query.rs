@@ -20,17 +20,73 @@ pub struct UserQueryRequest<'a> {
     datasource_id: &'a str,
 }
 
+/// Handles user queries and executes them against the database.
+///
+/// # Example
+///
+/// ```json
+/// {
+///     "datasource_id": "test",
+///     "query": {
+///         "columns": [
+///             {
+///                 "table_id": 0,
+///                 "column_id": 1,
+///                 "table_name": "categories",
+///                 "column_name": "categoryname",
+///                 "aggregation": null,
+///                 "format": null,
+///                 "order": "Asc",
+///                 "data_type": "Text"
+///             },
+///             {
+///                 "table_id": 5,
+///                 "column_id": 3,
+///                 "table_name": "products",
+///                 "column_name": "productname",
+///                 "aggregation": null,
+///                 "format": null,
+///                 "order": "Asc",
+///                 "data_type": "Text"
+///             }
+///         ],
+///         "joins": [
+///             {
+///                 "main_table_id": 5,
+///                 "join_table": 0,
+///                 "main_field": 0,
+///                 "join_field": 0
+///             }
+///         ],
+///         "model_id": "test",
+///         "filters": []
+///     }
+/// }
+/// ```
+///
+/// # Arguments
+///
+/// - `db`: A mutable reference to the database connection.
+/// - `state`: A reference to the shared state containing user's database connections.
+/// - `user_query`: A JSON payload representing the user query.
+///
+/// # Returns
+///
+/// Returns a `Result` containing either the JSON result of the query or an HTTP 500 error.
+
 #[post("/", data = "<user_query>")]
 pub(crate) async fn user_query_handler(
     mut db: Connection<Db>,
     state: &State<RwLock<SharedConnections>>,
     user_query: Json<UserQueryRequest<'_>>,
 ) -> Result<Json<QueryResult>, (Status, Error500Template)> {
-    let model_configuration = configuration_factory(user_query.datasource_id, &mut db).await;
+    let model_configuration = configuration_factory(user_query.datasource_id, &mut db)
+        .await
+        .map_err(|e| http500(e))?;
     let model_retriever = ModelGetter::new(&mut db);
 
     let res = query_runner_factory(
-        model_configuration.map_err(|e| http500(e))?,
+        model_configuration,
         state,
         model_retriever,
         &user_query.query.model_id,
