@@ -51,7 +51,7 @@ pub(crate) async fn post_config_handler(
     let config_storer;
     match &config_req.config_req {
         ModelConfigReq::SqlConfigReq(sql_config) => {
-            config_storer = SqlConfigurationSaver::new(&mut db, sql_config.clone());
+            config_storer = SqlConfigurationSaver::new(&mut db, sql_config);
         }
     }
 

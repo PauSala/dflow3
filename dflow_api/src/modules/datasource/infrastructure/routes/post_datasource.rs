@@ -9,7 +9,7 @@ use crate::{
     modules::datasource::{
         application::DatasourceSaverService,
         infrastructure::persistence::datasource_saver::DataSourceSaver,
-        model::datasource_type::{DataSource, DataSourceType},
+        model::datasource_type::DataSourceType,
     },
     template_dir::Error500Template,
     Db,
@@ -38,14 +38,13 @@ pub(crate) async fn post_datasource_handler(
     mut db: Connection<Db>,
     datasource_req: Json<SaveDatasourceRequest<'_>>,
 ) -> Result<(), (Status, Error500Template)> {
-    let datasource = DataSource::new(
-        datasource_req.datasource_id.to_owned(),
-        datasource_req.datasource_name.to_owned(),
-        datasource_req.datasource_type.clone(),
-    );
-
-    let mut datastorer = DataSourceSaver::new(&mut db);
-    let mut saver = DatasourceSaverService::new();
-    let res = saver.run(datasource, &mut datastorer).await;
-    res.map_err(|e| http500(e))
+    DatasourceSaverService::new()
+        .run(
+            datasource_req.datasource_id,
+            datasource_req.datasource_name,
+            datasource_req.datasource_type.clone(),
+            &mut DataSourceSaver::new(&mut db),
+        )
+        .await
+        .map_err(|e| http500(e))
 }
