@@ -19,7 +19,7 @@ use crate::{
 };
 
 use self::sql_model_builder::{
-    mssql_model_builder::MssqlModelBuilder, postgres_model_builder::PosgtresModelBuilder,
+    postgres_model_builder::PosgtresModelBuilder,
     SqlBuilderDialect, SqlModelBuilder,
 };
 
@@ -63,14 +63,14 @@ pub(crate) async fn model_builder_factory(
                 model_builder = SqlModelBuilder::new(cn);
                 Ok(ModelBuilder::Sql(model_builder))
             }
-            SqlDialect::Mssql => {
+/*             SqlDialect::Mssql => {
                 let client = SharedConnections::get_mssql_client(shared_cns, &config)
                     .await
                     .unwrap();
                 let cn = SqlBuilderDialect::Mssql(MssqlModelBuilder::new(client, config));
                 model_builder = SqlModelBuilder::new(cn);
                 Ok(ModelBuilder::Sql(model_builder))
-            }
+            } */
         },
     }
 }
