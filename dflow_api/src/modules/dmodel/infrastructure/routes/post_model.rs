@@ -34,24 +34,20 @@ pub(crate) async fn post_model_handler(
     shared_cns: &State<RwLock<SharedConnections>>,
     model_req: Json<ModelRequest<'_>>,
 ) -> Result<Json<Model>, (Status, Error500Template)> {
-    let mut model_builder = model_builder_factory(
-        &model_req.datasource_id,
-        &mut db,
-        shared_cns,
-    )
-    .await
-    .map_err(|e| http500(e))?;
+    let mut model_builder = model_builder_factory(&model_req.datasource_id, &mut db, shared_cns)
+        .await
+        .map_err(|e| http500(e))?;
 
     let mut model_serializer = ModelStorer::new(&mut db);
     let mut saver_service = ModelSaverService::new();
-    let model = saver_service
+    saver_service
         .run(
             &model_req.datasource_id,
             &model_req.model_id,
             &mut model_builder,
             &mut model_serializer,
         )
-        .await;
-
-    model.map(|model| Json(model)).map_err(|e| http500(e))
+        .await
+        .map(|model| Json(model))
+        .map_err(|e| http500(e))
 }
