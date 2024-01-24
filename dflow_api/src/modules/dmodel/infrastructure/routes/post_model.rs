@@ -38,14 +38,14 @@ pub(crate) async fn post_model_handler(
         .await
         .map_err(|e| http500(e))?;
 
-    let mut model_serializer = ModelStorer::new(&mut db);
+    let mut model_saver = ModelStorer::new(&mut db);
     let mut saver_service = ModelSaverService::new();
     saver_service
         .run(
             &model_req.datasource_id,
             &model_req.model_id,
             &mut model_builder,
-            &mut model_serializer,
+            &mut model_saver,
         )
         .await
         .map(|model| Json(model))
