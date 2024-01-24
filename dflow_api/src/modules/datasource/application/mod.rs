@@ -1,4 +1,3 @@
-pub mod configuration_factory;
 
 use anyhow::{Ok, Result};
 
@@ -6,7 +5,7 @@ use super::{
     infrastructure::persistence::datasource_saver::DataSourceSaver,
     model::{configurations::configurations::ConfigSaver, datasource_type::DataSource},
 };
-pub struct ConfigSaverService {}
+pub struct ConfigSaverService;
 
 impl ConfigSaverService {
     pub(crate) fn new() -> Self {

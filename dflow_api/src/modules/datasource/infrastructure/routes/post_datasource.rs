@@ -24,7 +24,7 @@ pub(crate) struct SaveDatasourceRequest<'a> {
 
 /// route: http://127.0.0.1:8000/datasource/save
 /// Example request
-/// ```
+/// ```json
 /// {
 ///     "datasource_id": "",
 ///     "datasource_name": "",

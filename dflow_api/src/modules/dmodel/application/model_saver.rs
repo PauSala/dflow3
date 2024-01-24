@@ -9,7 +9,7 @@ use crate::
     
 ;
 
-pub struct ModelSaverService {}
+pub struct ModelSaverService;
 
 impl ModelSaverService {
     pub(crate) fn new() -> Self {

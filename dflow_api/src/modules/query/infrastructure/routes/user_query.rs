@@ -4,9 +4,9 @@ use rocket::{post, serde::json::Json, State};
 use rocket_db_pools::Connection;
 use serde::Deserialize;
 
-use crate::modules::datasource::application::configuration_factory::configuration_factory;
+use crate::modules::datasource::infrastructure::factory::configuration_factory::configuration_factory;
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
-use crate::modules::query::application::query_runner_factory::query_runner_factory;
+use crate::modules::query::infrastructure::factory::query_runner_factory::query_runner_factory;
 use crate::modules::query::application::user_query_executor::user_query_executor;
 use crate::modules::query::model::query_builder::abstract_query::AbstractQuery;
 use crate::modules::query::model::query_executor::QueryResult;
@@ -85,15 +85,15 @@ pub(crate) async fn user_query_handler(
         .map_err(|e| http500(e))?;
     let model_retriever = ModelGetter::new(&mut db);
 
-    let res = query_runner_factory(
+    let (builder, executor) = query_runner_factory(
         model_configuration,
         state,
         model_retriever,
         &user_query.query.model_id,
     )
-    .await;
+    .await
+    .map_err(|e| http500(e))?;
 
-    let (builder, executor) = res.map_err(|e| http500(e))?;
     let result = user_query_executor(builder, executor, &user_query.query).await;
     result.map(|e| Json(e)).map_err(|e| http500(e))
 }
