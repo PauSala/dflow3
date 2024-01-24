@@ -2,6 +2,7 @@ pub mod modules;
 pub mod template_dir;
 use modules::datasource::infrastructure::routes::datasource_routes;
 use modules::dmodel::infrastructure::routes::dmodel_routes;
+use modules::query::infrastructure::routes::user_query_routes;
 use modules::shared::persistence::SqliteConnection;
 use modules::shared::shared_state::shared_connections::SharedConnections;
 use rocket::launch;
@@ -47,4 +48,5 @@ fn rocket() -> _ {
         }))
         .mount("/datasource", datasource_routes())
         .mount("/model", dmodel_routes())
+        .mount("/query", user_query_routes())
 }
