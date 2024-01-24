@@ -1,7 +1,7 @@
 use anyhow::{Ok, Result};
 
 use crate::modules::dmodel::model::{
-    model::{Model, ModelSaver},
+    model::{Model, TModelSaver},
     model_builder::TModelBuilder,
 };
 
@@ -12,7 +12,7 @@ impl ModelSaverService {
         ModelSaverService {}
     }
 
-    pub(crate) async fn run<Builder: TModelBuilder, Saver: ModelSaver>(
+    pub(crate) async fn run<Builder: TModelBuilder, Saver: TModelSaver>(
         &mut self,
         datasource_id: &str,
         model_id: &str,

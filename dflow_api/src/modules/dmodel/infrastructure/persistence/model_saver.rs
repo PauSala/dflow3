@@ -4,7 +4,7 @@ use anyhow::Result;
 use rocket_db_pools::sqlx::{self, Acquire};
 use rocket_db_pools::Connection;
 
-use crate::modules::dmodel::model::model::{Column, Model, ModelSaver, Relation, Table};
+use crate::modules::dmodel::model::model::{Column, Model, TModelSaver, Relation, Table};
 use crate::Db;
 
 pub struct ModelStorer<'a> {
@@ -99,7 +99,7 @@ impl<'a> ModelStorer<'a> {
     }
 }
 
-impl ModelSaver for ModelStorer<'_> {
+impl TModelSaver for ModelStorer<'_> {
     async fn persist(&mut self, model: &Model) -> Result<()> {
         self.insert_model(&model.id, &model.datasource_id).await?;
         self.insert_tables(&model.tables, &model.id).await?;

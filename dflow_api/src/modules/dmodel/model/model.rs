@@ -222,7 +222,7 @@ impl Model {
     }
 }
 
-pub(crate) trait ModelSaver {
+pub(crate) trait TModelSaver {
     async fn persist(&mut self, model: &Model) -> Result<()>;
 }
 

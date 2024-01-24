@@ -48,14 +48,14 @@ pub(crate) async fn post_config_handler(
     config_req: Json<SaveConfigRequest>,
 ) -> Result<(), (Status, Error500Template)> {
 
-    let config_storer;
+    let config_saver;
     match &config_req.config_req {
         ModelConfigReq::SqlConfigReq(sql_config) => {
-            config_storer = SqlConfigurationSaver::new(&mut db, sql_config);
+            config_saver = SqlConfigurationSaver::new(&mut db, sql_config);
         }
     }
 
     let mut saver = ConfigSaverService::new();
-    let res = saver.run(config_storer).await;
+    let res = saver.run(config_saver).await;
     res.map_err(|e| http500(e))
 }
