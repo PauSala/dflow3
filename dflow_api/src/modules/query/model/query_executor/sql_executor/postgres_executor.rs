@@ -35,20 +35,20 @@ impl PostgresExecutor {
                 let m = column_map.get(column_id).expect("Column id should exist");
                 match m.data_type {
                     TypeAlias::Integer | TypeAlias::Float => {
-                        let v: f64 = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Number(Some(v)));
+                        let v: Option<f64> = row.get(col_index);
+                        row_data.push(ColumnReturnDataType::Number(v));
                     }
                     TypeAlias::Bool => {
-                        let v: bool = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Bool(Some(v)));
+                        let v: Option<bool> = row.get(col_index);
+                        row_data.push(ColumnReturnDataType::Bool(v));
                     }
                     TypeAlias::Text => {
-                        let v: String = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Text(Some(v)));
+                        let v: Option<String> = row.get(col_index);
+                        row_data.push(ColumnReturnDataType::Text(v));
                     }
                     TypeAlias::Date => {
-                        let v: String = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Date(Some(v)));
+                        let v: Option<String> = row.get(col_index);
+                        row_data.push(ColumnReturnDataType::Date(v));
                     }
                 }
             }
