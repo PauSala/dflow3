@@ -7,18 +7,18 @@ use crate::{modules::dmodel::model::model::{Column, Model, Relation, Table, Type
 
 
 
-pub struct ModelRetriever<'a> {
+pub struct ModelGetter<'a> {
     pub db: &'a mut Connection<Db>,
 }
 
-impl<'a> ModelRetriever<'a>{
+impl<'a> ModelGetter<'a>{
     pub(crate) fn new(db: &'a mut Connection<Db>) -> Self {
-        ModelRetriever { db }
+        ModelGetter { db }
     }
 }
 
 
-impl<'a> ModelRetriever<'a> {
+impl<'a> ModelGetter<'a> {
     pub async fn retrieve(&mut self, model_id: &str) -> Result<Model> {
         let model = self.get_model_by_id(model_id).await?;
         if let Some(mut model) = model {

@@ -1,6 +1,6 @@
 use rocket::{tokio::sync::RwLock, State};
 
-use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelRetriever;
+use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
 use crate::modules::query::model::query_builder::Builder;
 use crate::modules::{
     datasource::model::{
@@ -58,9 +58,11 @@ pub(crate) async fn postgres_runner_factory(
 pub(crate) async fn query_runner_factory(
     config: DatasourceConfiguration,
     state: &State<RwLock<SharedConnections>>,
-    mut model_retriever: ModelRetriever<'_>,
+    mut model_retriever: ModelGetter<'_>,
     model_id: &str,
 ) -> Result<(Builder, Executor)> {
+
+    
     let model = model_retriever.retrieve(model_id).await?;
 
     match config {

@@ -38,6 +38,8 @@ pub(crate) async fn post_model_handler(
     shared_cns: &State<RwLock<SharedConnections>>,
     model_req: Json<ModelRequest<'_>>,
 ) -> Result<Json<Model>, (Status, Error500Template)> {
+
+    
     let model_builder = model_builder_factory(
         model_req.datasource_type.clone(),
         &model_req.datasource_id,
