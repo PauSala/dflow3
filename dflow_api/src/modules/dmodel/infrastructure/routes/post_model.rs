@@ -4,7 +4,6 @@ use rocket::{post, serde::json::Json, State};
 use rocket_db_pools::Connection;
 use serde::Deserialize;
 
-use crate::modules::datasource::model::datasource_type::DataSourceType;
 use crate::modules::dmodel::application::model_saver::ModelSaverService;
 use crate::modules::dmodel::infrastructure::factory::model_builder_factory::model_builder_factory;
 use crate::modules::dmodel::infrastructure::persistence::model_saver::ModelStorer;
@@ -18,7 +17,6 @@ use crate::Db;
 pub(crate) struct ModelRequest<'a> {
     pub(crate) datasource_id: &'a str,
     pub(crate) model_id: &'a str,
-    pub(crate) datasource_type: DataSourceType,
 }
 
 /// generate model from datasource (datasource and associated config must exist)  
@@ -28,9 +26,6 @@ pub(crate) struct ModelRequest<'a> {
 /// {
 ///     "datasource_id": "test",
 ///     "model_id": "RustTest",
-///     "datasource_type": {
-///         "Sql": "Postgresql"
-///      }
 /// }
 /// ```
 #[post("/save", data = "<model_req>")]
@@ -40,7 +35,6 @@ pub(crate) async fn post_model_handler(
     model_req: Json<ModelRequest<'_>>,
 ) -> Result<Json<Model>, (Status, Error500Template)> {
     let mut model_builder = model_builder_factory(
-        model_req.datasource_type.clone(),
         &model_req.datasource_id,
         &mut db,
         shared_cns,
