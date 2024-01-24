@@ -40,19 +40,19 @@ impl QueryResult {
     }
 }
 
-pub(crate) trait QueryExecutor {
+pub(crate) trait TQueryExecutor {
     async fn run(&mut self, query: &str, abstract_query: &AbstractQuery) -> Result<QueryResult>;
 }
 
-pub(crate) enum Executor {
+pub(crate) enum QueryExecutor {
     Pg(PostgresExecutor),
 }
 
-impl QueryExecutor for Executor {
+impl TQueryExecutor for QueryExecutor {
     async fn run(&mut self, query: &str, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult> {
         let data: Vec<Vec<ColumnReturnDataType>>;
         match self {
-            Executor::Pg(executor) => data = executor.execute(query, abstract_query).await?,
+            QueryExecutor::Pg(executor) => data = executor.execute(query, abstract_query).await?,
         }
 
         let result = QueryResult {

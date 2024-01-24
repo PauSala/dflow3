@@ -1,7 +1,7 @@
 use rocket::{tokio::sync::RwLock, State};
 
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
-use crate::modules::query::model::query_builder::Builder;
+use crate::modules::query::model::query_builder::QueryBuilder;
 use crate::modules::{
     datasource::model::{
         configurations::{configurations::DatasourceConfiguration, sql_configuration::SqlConfig},
@@ -10,7 +10,7 @@ use crate::modules::{
     dmodel::model::model::Model,
     query::model::{
         query_builder::sql_builder::{postgres_builder::PostgresDialect, SqlQueryBuilder},
-        query_executor::{sql_executor::postgres_executor::PostgresExecutor, Executor},
+        query_executor::{sql_executor::postgres_executor::PostgresExecutor, QueryExecutor},
     },
     shared::shared_state::shared_connections::SharedConnections,
 };
@@ -20,7 +20,7 @@ pub(crate) async fn postgres_runner_factory(
     config: SqlConfig,
     state: &State<RwLock<SharedConnections>>,
     model: Model,
-) -> Result<(SqlQueryBuilder<PostgresDialect>, Executor)> {
+) -> Result<(SqlQueryBuilder<PostgresDialect>, QueryExecutor)> {
     let client = SharedConnections::get_pg_client(state, &config).await?;
     let builder = SqlQueryBuilder {
         dialect: PostgresDialect {
@@ -31,7 +31,7 @@ pub(crate) async fn postgres_runner_factory(
         },
     };
     let query_executor = PostgresExecutor::new(client);
-    let executor = Executor::Pg(query_executor);
+    let executor = QueryExecutor::Pg(query_executor);
 
     Ok((builder, executor))
 }
@@ -60,7 +60,7 @@ pub(crate) async fn query_runner_factory(
     state: &State<RwLock<SharedConnections>>,
     mut model_retriever: ModelGetter<'_>,
     model_id: &str,
-) -> Result<(Builder, Executor)> {
+) -> Result<(QueryBuilder, QueryExecutor)> {
 
     
     let model = model_retriever.retrieve(model_id).await?;
@@ -73,7 +73,7 @@ pub(crate) async fn query_runner_factory(
                     Ok((_builder, _executor)) => {
                         let builder = _builder;
                         let executor = _executor;
-                        return Ok((Builder::PgBuilder(builder), executor));
+                        return Ok((QueryBuilder::PgBuilder(builder), executor));
                     }
                     Err(e) => {
                         bail!(e)

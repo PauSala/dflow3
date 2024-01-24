@@ -2,7 +2,7 @@ pub mod postgres_builder;
 
 use crate::modules::dmodel::model::model::TypeAlias;
 
-use super::{abstract_query::{AbstractQuery, FilterValue, QueryColumn, QueryFilter, ValueContainer}, QueryBuilder};
+use super::{abstract_query::{AbstractQuery, FilterValue, QueryColumn, QueryFilter, ValueContainer}, TQueryBuilder};
 use sql_query_builder::Select;
 
 
@@ -63,7 +63,7 @@ where
     }
 }
 
-impl<T> QueryBuilder for SqlQueryBuilder<T>
+impl<T> TQueryBuilder for SqlQueryBuilder<T>
 where
     T: SqlBuilderDialect,
 {
