@@ -1,11 +1,12 @@
 pub mod modules;
 pub mod template_dir;
+
 use modules::datasource::infrastructure::routes::datasource_routes;
 use modules::dmodel::infrastructure::routes::dmodel_routes;
 use modules::query::infrastructure::routes::user_query_routes;
 use modules::shared::persistence::SqliteConnection;
 use modules::shared::shared_state::shared_connections::SharedConnections;
-use rocket::launch;
+use rocket::{get, launch, routes};
 //use rocket::tokio::sync::RwLock;
 use rocket::http::Method;
 use rocket::tokio::sync::RwLock;
@@ -16,18 +17,37 @@ use rocket_dyn_templates::Template;
 use rocket_db_pools::sqlx::{self};
 use rocket_db_pools::Database;
 
+use crate::modules::shared::auth::jwt::UserClaim;
+
 //sqlite database
 #[derive(Database)]
 #[database("models")]
 pub struct Db(sqlx::SqlitePool);
 
+#[get("/")]
+fn index() -> String {
+    let user_claim = UserClaim {
+        id: format!("hello_rocket_jwt"),
+    };
+    let token = UserClaim::sign(user_claim);
+    println!("{:#?}", UserClaim::decode(token.clone()));
+    token
+}
+
+#[get("/user_id")]
+fn get_uer_id_from_jwt(user: UserClaim) -> String {
+    format!("user id is {}", user.id)
+}
+
 #[launch]
 fn rocket() -> _ {
+    // Init main DB
     let sqlite = SqliteConnection::new();
     sqlite
         .create_db_if_not_exists()
         .expect("Sqlite should be available");
 
+    // Set cors
     let cors = CorsOptions::default()
         .allowed_origins(AllowedOrigins::all())
         .allowed_methods(
@@ -49,4 +69,5 @@ fn rocket() -> _ {
         .mount("/datasource", datasource_routes())
         .mount("/model", dmodel_routes())
         .mount("/query", user_query_routes())
+        .mount("/", routes![index, get_uer_id_from_jwt])
 }

@@ -11,7 +11,6 @@ serde_json = "1.0.110"
 test-case = "3.3.1"
 rusqlite = "0.30.0"
 sql_query_builder = "2.1.0"
-load-dotenv = "0.1.2"
 
 # Better errors
 anyhow = "1.0.77"
@@ -23,6 +22,10 @@ deadpool-postgres = "0.12.1"
 deadpool-tiberius = "0.1.6"
 rocket_cors = "0.6.0"
 askama_rocket = "0.12.0"
+rocket-jwt = "0.5.2"
+jsonwebtoken = "9.2.0"
+magic-crypt = "3.1.13"
+dotenv_codegen = "0.15.0"
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0"
