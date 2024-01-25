@@ -26,10 +26,9 @@ impl SharedConnections {
                 recycling_method: RecyclingMethod::Fast,
             };
             let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
-            let pool = PgPool::builder(mgr).max_size(16).build().unwrap();
+            let pool = PgPool::builder(mgr).max_size(16).build()?;
             self.postgres_pool = Some(pool);
         }
-
         Ok(())
     }
 

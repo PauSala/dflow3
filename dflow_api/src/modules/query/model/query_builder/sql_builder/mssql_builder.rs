@@ -1,5 +1,3 @@
-use sql_query_builder::Select;
-
 use crate::modules::{
     dmodel::model::model::Model,
     query::model::query_builder::abstract_query::{
@@ -9,31 +7,41 @@ use crate::modules::{
 
 use super::SqlBuilderDialect;
 
-pub struct PostgresDialect {
+pub struct MssqlDialect {
     pub model: Model,
     pub schema: String,
 }
 
-impl PostgresDialect {}
-
-impl SqlBuilderDialect for PostgresDialect {
+impl SqlBuilderDialect for MssqlDialect {
     //TODO: makes sense to have some count(format(date))?
     fn select_date(&self, c: &QueryColumn) -> String {
         let format;
         match c.format {
-            Some(Format::Year) => format = String::from("'YYYY'"),
-            Some(Format::Quarter) => format = String::from("'YYYY-\"Q\"Q'"),
-            Some(Format::Month) => format = String::from("'YYYY-MM'"),
-            Some(Format::Week) => format = String::from("'IYYY-IW'"),
-            Some(Format::Day) => format = String::from("'YYYY-MM-DD'"),
-            Some(Format::DayHour) => format = String::from("'YYYY-MM-DD HH'"),
-            Some(Format::DayHourMinute) => format = String::from("'YYYY-MM-DD HH:MI'"),
-            Some(Format::Timestamp) => format = String::from("'YYYYY-MM-DD HH:MI:SS'"),
-            Some(Format::WeekDay) => format = String::from("'ID'"),
-            None => format = String::from("'YYYY-MM-DD'"),
+            Some(Format::Year) => format = String::from("'yyyy'"),
+            Some(Format::Quarter) => format = String::from("'yyyy-Q'"),
+            Some(Format::Month) => format = String::from("'yyyy-MM'"),
+            Some(Format::Week) => {
+                return format!(
+                    "DATEPART(week, CAST(\"{}\".\"{}\".\"{}\" AS DATE)) as \"{}\"",
+                    self.schema, c.table_name, c.column_name, c.column_name
+                )
+                .to_string();
+            }
+            Some(Format::WeekDay) => {
+                return format!(
+                    "DATEPART(weekday, CAST(\"{}\".\"{}\".\"{}\" AS DATE)) as \"{}\"",
+                    self.schema, c.table_name, c.column_name, c.column_name
+                )
+                .to_string();
+            }
+            Some(Format::Day) => format = String::from(""),
+            Some(Format::DayHour) => format = String::from("'yyyy-MM-dd'"),
+            Some(Format::DayHourMinute) => format = String::from("'yyyy-MM-dd HH'"),
+            Some(Format::Timestamp) => format = String::from("'yyyy-MM-dd HH:mm'"),
+            None => format = String::from("'yyyy-MM-dd HH:mm:ss'"),
         }
         format!(
-            "to_char(\"{}\".\"{}\".\"{}\", {}) as \"{}\"",
+            "FORMAT(CAST(\"{}\".\"{}\".\"{}\" AS DATE), {}) as \"{}\"",
             self.schema, c.table_name, c.column_name, format, c.column_name
         )
         .to_string()
@@ -45,7 +53,7 @@ impl SqlBuilderDialect for PostgresDialect {
             Some(agg) => match agg {
                 Aggregation::CountDistinct => {
                     content = format!(
-                        "ROUND ({}(DISTINCT \"{}\".\"{}\".\"{}\")::numeric, 4)::float as \"{}\"",
+                        "CAST ({} (DISTINCT \"{}\".\"{}\".\"{}\") AS DECIMAL(32, 4)) as \"{}\"",
                         agg.get_value(),
                         self.schema,
                         c.table_name,
@@ -55,7 +63,7 @@ impl SqlBuilderDialect for PostgresDialect {
                 }
                 _ => {
                     content = format!(
-                        "ROUND ({}(\"{}\".\"{}\".\"{}\")::numeric, 4)::float as \"{}\"",
+                        "CAST ({}(\"{}\".\"{}\".\"{}\") AS DECIMAL(32, 4)) as \"{}\"",
                         agg.get_value(),
                         self.schema,
                         c.table_name,
@@ -66,7 +74,7 @@ impl SqlBuilderDialect for PostgresDialect {
             },
             None => {
                 content = format!(
-                    "ROUND ((\"{}\".\"{}\".\"{}\")::numeric, 4)::float as \"{}\"",
+                    "CAST (\"{}\".\"{}\".\"{}\" AS DECIMAL(32, 4)) as \"{}\"",
                     self.schema, c.table_name, c.column_name, c.column_name
                 )
             }
@@ -82,12 +90,19 @@ impl SqlBuilderDialect for PostgresDialect {
         )
     }
 
-
-    fn from_clause(&self, c: &QueryColumn, s: &Select) -> Select {
+    fn from_clause(
+        &self,
+        c: &QueryColumn,
+        s: &sql_query_builder::Select,
+    ) -> sql_query_builder::Select {
         s.clone().from(&format!("\"{}\"", c.table_name))
     }
 
-    fn group_by(&self, mut select: Select, query: &AbstractQuery) -> Select {
+    fn group_by(
+        &self,
+        mut select: sql_query_builder::Select,
+        query: &AbstractQuery,
+    ) -> sql_query_builder::Select {
         for col in query
             .columns
             .iter()
@@ -103,7 +118,11 @@ impl SqlBuilderDialect for PostgresDialect {
         select
     }
 
-    fn order_by(&self, mut select: Select, query: &AbstractQuery) -> Select {
+    fn order_by(
+        &self,
+        mut select: sql_query_builder::Select,
+        query: &AbstractQuery,
+    ) -> sql_query_builder::Select {
         for col in query
             .columns
             .iter()
@@ -116,7 +135,7 @@ impl SqlBuilderDialect for PostgresDialect {
                 self.schema,
                 col.table_name,
                 col.column_name,
-                &col.order.as_ref().expect("Should be filtered").get_value()
+                col.order.as_ref().expect("Should be filtered").get_value()
             ));
         }
         select
@@ -171,7 +190,7 @@ impl SqlBuilderDialect for PostgresDialect {
                     .map(|v| match v {
                         FilterValue::Number(v) => format!("{}", v),
                         _ => {
-                            panic!("This vector should contain only Int or Float")
+                            panic!("This vector should contain only Int or DECIMAL")
                         }
                     })
                     .collect::<Vec<_>>();
@@ -253,7 +272,11 @@ impl SqlBuilderDialect for PostgresDialect {
         clause
     }
 
-    fn join(&self, mut select: Select, query: &AbstractQuery) -> Select {
+    fn join(
+        &self,
+        mut select: sql_query_builder::Select,
+        query: &AbstractQuery<'_>,
+    ) -> sql_query_builder::Select {
         let joins = &query.joins;
         for join in joins {
             let pk_table = self
@@ -285,67 +308,5 @@ impl SqlBuilderDialect for PostgresDialect {
             select = select.inner_join(&join);
         }
         select
-    }
-}
-
-#[cfg(test)]
-pub mod tests {
-
-    use crate::modules::{
-        dmodel::model::model::TypeAlias, query::model::query_builder::abstract_query::Order,
-    };
-
-    use super::*;
-
-    #[test]
-    fn select_should_work_for_numeric_data() {
-        let model = Model::new("test", "test");
-        let users = QueryColumn {
-            table_id: 0,
-            column_id: 1,
-            aggregation: Some(Aggregation::Sum),
-            format: None,
-            order: Some(Order::Asc),
-            data_type: TypeAlias::Integer,
-            table_name: String::from("orderdetails"),
-            column_name: String::from("quantity"),
-        };
-
-        let builder = PostgresDialect {
-            model,
-            schema: "public".to_string(),
-        };
-
-        let query = builder.select_number(&users);
-        assert_eq!(
-            "ROUND (SUM(\"public\".\"orderdetails\".\"quantity\")::numeric, 4)::float as \"quantity\"",
-            &query.to_string()
-        );
-    }
-
-    #[test]
-    fn select_should_work_for_formatted_dates() {
-        let model = Model::new("test", "test");
-        let orders = QueryColumn {
-            table_id: 0,
-            column_id: 1,
-            table_name: String::from("orders"),
-            column_name: String::from("orderdate"),
-            aggregation: None,
-            format: Some(Format::Quarter),
-            order: Some(Order::Asc),
-            data_type: TypeAlias::Date,
-        };
-
-        let builder = PostgresDialect {
-            model,
-            schema: "public".to_string(),
-        };
-
-        let query = builder.select_date(&orders);
-        assert_eq!(
-            "to_char(\"public\".\"orders\".\"orderdate\", 'YYYY-\"Q\"Q') as \"orderdate\"",
-            &query.to_string()
-        );
     }
 }

@@ -1,6 +1,6 @@
 pub mod sql_executor;
 
-use self::sql_executor::postgres_executor::PostgresExecutor;
+use self::sql_executor::{mssql_executor::MssqlExecutor, postgres_executor::PostgresExecutor};
 
 use super::query_builder::abstract_query::AbstractQuery;
 use anyhow::Result;
@@ -46,6 +46,7 @@ pub(crate) trait TQueryExecutor {
 
 pub(crate) enum QueryExecutor {
     Pg(PostgresExecutor),
+    Mssql(MssqlExecutor)
 }
 
 impl TQueryExecutor for QueryExecutor {
@@ -53,6 +54,7 @@ impl TQueryExecutor for QueryExecutor {
         let data: Vec<Vec<ColumnReturnDataType>>;
         match self {
             QueryExecutor::Pg(executor) => data = executor.execute(query, abstract_query).await?,
+            QueryExecutor::Mssql(executor) => data = executor.execute(query, abstract_query).await?,
         }
 
         let result = QueryResult {

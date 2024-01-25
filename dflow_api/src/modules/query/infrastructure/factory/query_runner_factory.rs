@@ -1,7 +1,9 @@
 use rocket::{tokio::sync::RwLock, State};
 
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
+use crate::modules::query::model::query_builder::sql_builder::mssql_builder::MssqlDialect;
 use crate::modules::query::model::query_builder::QueryBuilder;
+use crate::modules::query::model::query_executor::sql_executor::mssql_executor::MssqlExecutor;
 use crate::modules::{
     datasource::model::{
         configurations::{configurations::DatasourceConfiguration, sql_configuration::SqlConfig},
@@ -36,12 +38,12 @@ pub(crate) async fn postgres_runner_factory(
     Ok((builder, executor))
 }
 
-/* pub(crate) async fn mssql_runner_factory(
+pub(crate) async fn mssql_runner_factory(
     config: SqlConfig,
     state: &State<RwLock<SharedConnections>>,
     model: Model,
-) -> Result<(SqlQueryBuilder<MssqlDialect>, Executor)> {
-    let client = SharedData::get_mssql_client(state, &config).await?;
+) -> Result<(SqlQueryBuilder<MssqlDialect>, QueryExecutor)> {
+    let client = SharedConnections::get_mssql_client(state, &config).await?;
     let builder = SqlQueryBuilder {
         dialect: MssqlDialect {
             model,
@@ -51,9 +53,9 @@ pub(crate) async fn postgres_runner_factory(
         },
     };
     let query_executor = MssqlExecutor::new(client);
-    let executor = Executor::Mssql(query_executor);
+    let executor = QueryExecutor::Mssql(query_executor);
     Ok((builder, executor))
-} */
+}
 
 pub(crate) async fn query_runner_factory(
     config: DatasourceConfiguration,
@@ -61,8 +63,6 @@ pub(crate) async fn query_runner_factory(
     mut model_retriever: ModelGetter<'_>,
     model_id: &str,
 ) -> Result<(QueryBuilder, QueryExecutor)> {
-
-    
     let model = model_retriever.retrieve(model_id).await?;
 
     match config {
@@ -79,19 +79,20 @@ pub(crate) async fn query_runner_factory(
                         bail!(e)
                     }
                 }
-            } /*             SqlDialect::Mssql => {
-                  let mssql = mssql_runner_factory(config, state, model).await;
-                  match mssql {
-                      Ok((_builder, _executor)) => {
-                          let builder = _builder;
-                          let executor = _executor;
-                          return Ok((Builder::MssqlBuilder(builder), executor));
-                      }
-                      Err(e) => {
-                          bail!(e)
-                      }
-                  }
-              } */
+            }
+            SqlDialect::Mssql => {
+                let mssql = mssql_runner_factory(config, state, model).await;
+                match mssql {
+                    Ok((_builder, _executor)) => {
+                        let builder = _builder;
+                        let executor = _executor;
+                        return Ok((QueryBuilder::MssqlBuilder(builder), executor));
+                    }
+                    Err(e) => {
+                        bail!(e)
+                    }
+                }
+            }
         },
     };
 }
