@@ -16,7 +16,7 @@ impl SqlDialect {
     pub fn from_string(v: &str) -> Self {
         match v {
             "postgresql" => SqlDialect::Postgresql,
-         /*    "mssql" => SqlDialect::Mssql, */
+            "mssql" => SqlDialect::Mssql,
             _ => panic!("Unknown sqlDialect"),
         }
     }

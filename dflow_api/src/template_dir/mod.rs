@@ -19,3 +19,9 @@ pub(crate) fn http500(e: Error) -> (Status, Error500Template) {
 #[derive(Template)]
 #[template(path = "error_401.html")] 
 pub(crate) struct Error401Template;
+
+pub(crate) fn http400() -> (Status, Error401Template) {
+    (Status::Forbidden, {
+        Error401Template {}
+    })
+}

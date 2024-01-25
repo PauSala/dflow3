@@ -6,19 +6,17 @@ use modules::dmodel::infrastructure::routes::dmodel_routes;
 use modules::query::infrastructure::routes::user_query_routes;
 use modules::shared::persistence::SqliteConnection;
 use modules::shared::shared_state::shared_connections::SharedConnections;
-use rocket::response::Redirect;
 use rocket::{get, launch, routes};
 //use rocket::tokio::sync::RwLock;
-use rocket::http::Method;
+use rocket::http::{Method, Status};
 use rocket::tokio::sync::RwLock;
-use rocket::uri;
 use rocket_cors::{AllowedOrigins, CorsOptions};
 use rocket_dyn_templates::Template;
 
 // Database state share stuff
 use rocket_db_pools::sqlx::{self};
 use rocket_db_pools::Database;
-use template_dir::Error401Template;
+use template_dir::{http400, Error401Template};
 
 use crate::modules::shared::auth::jwt::UserClaim;
 
@@ -40,12 +38,9 @@ fn index() -> String {
 }
 
 #[get("/user_id")]
-fn get_uer_id_from_jwt(user: Option<UserClaim>) -> Result<String, Redirect> {
-    let user = user.ok_or_else(|| Redirect::to(uri!(not_authorized)));
-    match user {
-        Ok(user) => Ok(format!("user id is {}", user.id.clone())),
-        Err(_) => Err(Redirect::to(uri!(not_authorized))),
-    }
+fn get_uer_id_from_jwt(user: Option<UserClaim>) -> Result<String, (Status, Error401Template)> {
+    user.map_or(Err(http400()), |f| Ok(format!("user id is {}", f.id.clone())))
+
 }
 
 #[get("/not-authorized")]

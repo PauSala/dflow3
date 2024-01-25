@@ -16,7 +16,7 @@ impl DataSourceType {
     pub fn from_string(v: &str) -> Self {
         match v {
             "postgresql" => DataSourceType::Sql(SqlDialect::Postgresql),
-            /* "mssql" => DataSourceType::Sql(SqlDialect::Mssql), */
+            "mssql" => DataSourceType::Sql(SqlDialect::Mssql),
             _ => panic!("{}", format!("Unknown datasource type: {}", v))
         }
     }
