@@ -264,16 +264,16 @@ impl SqlBuilderDialect for PostgresDialect {
             let fk_table = self
                 .model
                 .tables
-                .get(&join.join_table)
+                .get(&join.join_table_id)
                 .expect("table should exist");
             let pk_column = &pk_table
                 .columns
-                .get(&join.main_field)
+                .get(&join.main_field_id)
                 .expect("Column should exist")
                 .name;
             let fk_column = &fk_table
                 .columns
-                .get(&join.join_field)
+                .get(&join.join_field_id)
                 .expect("Column should exist")
                 .name;
             let pk_table = &pk_table.name;

@@ -25,3 +25,13 @@ pub(crate) fn http400() -> (Status, Error401Template) {
         Error401Template {}
     })
 }
+
+#[derive(Template)]
+#[template(path = "error_404.html")] 
+pub(crate) struct Error404Template;
+
+pub(crate) fn http404() -> (Status, Error404Template) {
+    (Status::Forbidden, {
+        Error404Template {}
+    })
+}

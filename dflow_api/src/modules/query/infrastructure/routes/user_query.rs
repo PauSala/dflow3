@@ -53,9 +53,9 @@ pub struct UserQueryRequest<'a> {
 ///         "joins": [
 ///             {
 ///                 "main_table_id": 5,
-///                 "join_table": 0,
-///                 "main_field": 0,
-///                 "join_field": 0
+///                 "join_table_id": 0,
+///                 "main_field_id": 0,
+///                 "join_field_id": 0
 ///             }
 ///         ],
 ///         "model_id": "test",

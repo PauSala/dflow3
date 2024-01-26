@@ -120,9 +120,9 @@ pub struct QueryColumn {
 #[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]
 pub struct JoinDefinition {
     pub main_table_id: usize,
-    pub join_table: usize,
-    pub main_field: usize,
-    pub join_field: usize 
+    pub join_table_id: usize,
+    pub main_field_id: usize,
+    pub join_field_id: usize 
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
