@@ -21,7 +21,7 @@ import { useState } from "react";
 function Selection({ table, column }: { table: Table; column: Column }) {
   return (
     <div className="p-4">
-      <p className="text-sm font-light whitespace-nowrap text-ellipsis overflow-hidden">
+      <p className="text-xs font-light whitespace-nowrap text-ellipsis overflow-hidden">
         {table.display_name}
       </p>
       <p className="whitespace-nowrap text-ellipsis overflow-hidden">

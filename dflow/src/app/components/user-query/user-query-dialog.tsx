@@ -103,7 +103,7 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
       <DialogTrigger asChild>
         <Button variant="outline">Query Model</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[60rem]">
+      <DialogContent className="min-w-[60rem] max-h-[85vh] overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-slate-700">
             {model.id} DataModel

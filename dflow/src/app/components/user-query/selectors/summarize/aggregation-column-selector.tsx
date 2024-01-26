@@ -52,7 +52,7 @@ export function AggregationColumnSelector({
           <CommandList>
             <CommandEmpty>No column found. </CommandEmpty>
             <CommandGroup heading="Suggestions">
-              {columns.filter(c => c.column.agg === null).map((table) => (
+              {columns.map((table) => (
                 <CommandItem
                   key={table.column.column_id}
                   value={table.column.name}

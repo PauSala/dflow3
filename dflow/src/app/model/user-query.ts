@@ -3,7 +3,7 @@ import { Column, DataModel, Table } from "./data-model";
 export type AggregationValue = null | "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct"
 
 export type Format =
-    |  null
+    | null
     | "Year"
     | "Quarter"
     | "Month"
@@ -85,6 +85,8 @@ export interface UserQuery {
 export class UserQueryBuilder {
 
     private tables: Map<number, QueryColumn[]> = new Map();
+    private joins: Map<string, JoinDefinition> = new Map();
+
     constructor(
         private model: DataModel,
         private datasource_id: string,
@@ -114,6 +116,7 @@ export class UserQueryBuilder {
     }
 
     public build(): UserQuery {
+        console.log(this.joins, Array.from(this.joins.values()));
         let columns: QueryColumn[] = [];
         this.tables.forEach((cols, _) => {
             cols.forEach(c => columns.push(c));
@@ -124,10 +127,18 @@ export class UserQueryBuilder {
                 model_id: this.model_id,
                 columns,
                 filters: [],
-                joins: []
+                joins: Array.from(this.joins.values())
             }
         }
         return query;
+    }
+
+    public addJoin(joinDefinition: JoinDefinition, key: string) {
+        this.joins.set(key, joinDefinition);
+    }
+
+    public removeJoin(key: string) {
+        this.joins.delete(key);
     }
 
     public getSumarizableColumns(): { column: Column & { agg: AggregationValue }; table: Table }[] {

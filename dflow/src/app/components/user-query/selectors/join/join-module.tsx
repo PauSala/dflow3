@@ -5,7 +5,6 @@ import { TableSelector } from "../tables/table-selector";
 import { useState } from "react";
 import { Column, DataModel, Table } from "../../../../model/data-model";
 import { UserQueryBuilder } from "../../../../model/user-query";
-import { JoinColumnsSelector } from "./join-columns";
 import { JoinColumnsModule } from "./join-columns-module";
 
 export function JoinModule({
@@ -40,7 +39,25 @@ export function JoinModule({
     if (selectedTable) {
       builder.deleteTable(selectedTable.table_id);
     }
+    builder.removeJoin(id);
     onDelete(id);
+  };
+
+  const onFullSelection = (
+    main_table_id: number,
+    main_field_id: number,
+    join_table_id: number,
+    join_field_id: number
+  ) => {
+    builder.addJoin(
+      {
+        main_table_id,
+        main_field_id,
+        join_table_id,
+        join_field_id,
+      },
+      id
+    );
   };
 
   return (
@@ -60,17 +77,14 @@ export function JoinModule({
           ></ColumnSelector>
         )}
       </div>
-      <p className="text-violet-900">On</p>
-      {selectedTable && <JoinColumnsModule
-        model={model}
-        filter={selectedTable.table_id}
-        onFullSelection={(
-          table1: number,
-          col1: number,
-          table2: number,
-          col2: number
-        ) => console.log(table1, col1, table2, col2)}
-      ></JoinColumnsModule>}
+      <p className="text-violet-900">on</p>
+      {selectedTable && (
+        <JoinColumnsModule
+          model={model}
+          filter={selectedTable.table_id}
+          onFullSelection={onFullSelection}
+        ></JoinColumnsModule>
+      )}
       <Button
         variant="ghost"
         size="icon"

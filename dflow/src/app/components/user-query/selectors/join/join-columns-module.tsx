@@ -6,7 +6,7 @@ import { useState } from "react";
 export function JoinColumnsModule({
   model,
   onFullSelection,
-  filter
+  filter,
 }: {
   model: DataModel;
   filter: number;
@@ -30,27 +30,27 @@ export function JoinColumnsModule({
     col2?: number,
     table2?: number
   ) => {
-    if (col1 && table1) {
-      if (selection?.table2 && selection.col2) {
+    if (col1 !== undefined && table1 !== undefined) {
+      if (selection?.table2 !== undefined && selection.col2 !== undefined) {
         onFullSelection(table1, col1, selection.table2, selection.col2);
       }
-      setSelection({
+      setSelection((prev) => ({
         col1,
         table1,
-        col2: selection?.col2,
-        table2: selection?.table2,
-      });
+        col2: prev?.col2,
+        table2: prev?.table2,
+      }));
     }
-    if (col2 && table2) {
-      if (selection?.table1 && selection.col1) {
+    if (col2 !== undefined && table2 !== undefined) {
+      if (selection?.table1 !== undefined && selection?.col1 !== undefined) {
         onFullSelection(selection.table1, selection.col1, table2, col2);
       }
-      setSelection({
+      setSelection((prev) => ({
         col2,
         table2,
-        col1: selection?.col1,
-        table1: selection?.table1,
-      });
+        col1: prev?.col1,
+        table1: prev?.table1,
+      }));
     }
   };
 
