@@ -2,30 +2,6 @@ import axios from "axios";
 import { Column, Table } from "../model/data-model";
 import { UserQuery } from "../model/user-query";
 
-export const userQuery__ = async () => {
-    return axios.post('http://127.0.0.1:8000/query',
-        {
-            datasource_id: "mssql",
-            query: {
-                columns: [
-                    {
-                        table_id: 34,
-                        column_id: 19,
-                        table_name: "ListaEspera",
-                        column_name: "CodSolictitud",
-                        aggregation: null,
-                        format: "No",
-                        order: "Asc",
-                        data_type: "Number"
-                    }
-                ],
-                model_id: "InformaHUD",
-                filters: []
-            }
-        }
-    )
-}
-
 export const query = async (query: UserQuery) => {
     return axios.post('http://127.0.0.1:8000/query',
         {...query}

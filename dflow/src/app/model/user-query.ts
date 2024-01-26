@@ -3,7 +3,7 @@ import { Column, DataModel, Table } from "./data-model";
 export type AggregationValue = null | "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct"
 
 export type Format =
-    | "No"
+    |  null
     | "Year"
     | "Quarter"
     | "Month"
@@ -14,8 +14,8 @@ export type Format =
     | "Timestamp"
     | "WeekDay"
 
-export type TypeAlias = "Number" | "Text" | "Date";
-export type Order = "Asc" | "Desc" | "No";
+export type TypeAlias = "Integer" | "Float" | "Text" | "Date";
+export type Order = null | "Asc" | "Desc";
 export interface QueryColumn {
     table_id: number;
     column_id: number;
@@ -23,7 +23,7 @@ export interface QueryColumn {
     column_name: string;
     aggregation: AggregationValue;
     format: Format;
-    order: "Asc" | "Desc" | "No";
+    order: "Asc" | "Desc" | null;
     data_type: TypeAlias;
 }
 
@@ -56,6 +56,13 @@ export type ValueContainer =
         MultiValue: FilterValue[]
     }
 
+export interface JoinDefinition {
+    main_table_id: number;
+    join_table_id: number;
+    main_field_id: number;
+    join_field_id: number;
+}
+
 export interface QueryFilter {
     column_name: string,
     table_name: string,
@@ -71,6 +78,7 @@ export interface UserQuery {
         columns: QueryColumn[],
         model_id: string,
         filters: QueryFilter[]
+        joins: JoinDefinition[]
     }
 }
 
@@ -116,6 +124,7 @@ export class UserQueryBuilder {
                 model_id: this.model_id,
                 columns,
                 filters: [],
+                joins: []
             }
         }
         return query;
@@ -126,7 +135,7 @@ export class UserQueryBuilder {
         this.tables.forEach((cols, table_id) => {
             const table = this.model.tables[table_id];
             const columns = cols
-                .filter(c => c.data_type == "Number")
+                .filter(c => c.data_type == "Integer" || c.data_type == "Float")
                 .map(c => ({ ...table.columns[c.column_id], agg: c.aggregation }));
             columns.forEach(c => {
                 response.push({ column: { ...c }, table: table });
@@ -174,8 +183,8 @@ export class UserQueryBuilder {
             table_name: table.name,
             column_name: column.name,
             aggregation: null,
-            format: "No",
-            order: "No",
+            format: null,
+            order: null,
             data_type: column.type_alias
         });
     }

@@ -35,7 +35,6 @@ export default function SummarizeModule({
         {selection !== undefined && (
           <AggregationSelector
             onSelect={(agg: AggregationT) => {
-              console.log(agg)
               builder.addAggregation(
                 selection!.table.table_id,
                 selection!.column.column_id,

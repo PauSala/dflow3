@@ -1,0 +1,97 @@
+import { Divide, Table2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Column, DataModel, Table } from "../../../../model/data-model";
+import ColumnIcon from "../columns/column-icon";
+import { useState } from "react";
+
+function Selection({ table, column }: { table: Table; column: Column }) {
+  return (
+    <div className="p-4">
+      <p className="text-sm font-light whitespace-nowrap text-ellipsis overflow-hidden">
+        {table.display_name}
+      </p>
+      <p className="whitespace-nowrap text-ellipsis overflow-hidden">
+        {column.display_name}
+      </p>
+    </div>
+  );
+}
+
+export function JoinColumnsSelector({
+  model,
+  filter,
+  onSelectColumn,
+}: {
+  model: DataModel;
+  filter?: number;
+  onSelectColumn: (column_id: number, table_id: number) => void;
+}) {
+  const [selection, setSelection] = useState<{
+    table: Table;
+    column: Column;
+  }>();
+  const tables = Object.values(model.tables).filter((t) =>
+    filter ? t.table_id === filter : true
+  );
+  const onSelect = (column: Column, table: Table) => {
+    setSelection({ table, column });
+    onSelectColumn(column.column_id, table.table_id);
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="p-[1.8em]">
+          {(selection && (
+            <Selection
+              column={selection.column}
+              table={selection.table}
+            ></Selection>
+          )) ||
+            "Pick a column"}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>Join Tables</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {tables.map((table) => (
+            <DropdownMenuSub key={table.table_id}>
+              <DropdownMenuSubTrigger>
+                <Table2 className="mr-2 h-4 w-4" />
+                <span>{table.display_name}</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {Object.values(table.columns).map((col) => (
+                    <DropdownMenuItem
+                      key={col.column_id}
+                      onClick={() => onSelect(col, table)}
+                    >
+                      <ColumnIcon type={col.type_alias}></ColumnIcon>
+                      <span>{col.display_name}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+          ))}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

@@ -4,10 +4,12 @@ import React from "react";
 export default function ColumnIcon({
   type,
 }: {
-  type: "Number" | "Text" | "Date";
+  type: "Integer" | "Float" | "Text" | "Date";
 }) {
   switch (type) {
-    case "Number":
+    case "Integer":
+      return <Sigma className="w-4 h-4 mr-2 text-zinc-500" />;
+    case "Float":
       return <Sigma className="w-4 h-4 mr-2 text-zinc-500" />;
     case "Text":
       return <Type className="w-4 h-4 mr-2 text-zinc-500" />;

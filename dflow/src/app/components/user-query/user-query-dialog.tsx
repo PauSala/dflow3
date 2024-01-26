@@ -23,8 +23,9 @@ import { Blend, Sigma } from "lucide-react";
 import { v4 } from "uuid";
 import { JoinModule } from "./selectors/join/join-module";
 import SummarizeModule from "./selectors/summarize/summarize-module";
-import { PreviewTable } from "../UserQuery/preview-table";
+
 import { query } from "../../services/query";
+import { PreviewTable } from "./preview-table";
 
 export function UserQueryDialog({ model }: { model: DataModel }) {
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
@@ -102,7 +103,7 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
       <DialogTrigger asChild>
         <Button variant="outline">Query Model</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[50rem]">
+      <DialogContent className="min-w-[60rem]">
         <DialogHeader>
           <DialogTitle className="text-slate-700">
             {model.id} DataModel
@@ -124,7 +125,6 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
               id={id}
               builder={queryBuilder}
               model={model}
-              mainTable={mainTable}
             ></JoinModule>
           ))}
 

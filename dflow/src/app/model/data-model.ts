@@ -1,8 +1,10 @@
+import { TypeAlias } from "./user-query";
+
 export interface Column {
     column_id: number;
     name: string;
     display_name: string;
-    type_alias: "Number" | "Text" | "Date";
+    type_alias: TypeAlias;
     actual_type: string;
 }
 
