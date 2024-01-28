@@ -1,7 +1,16 @@
+'use-client'
 import { UserQuery } from "../../model/user-query";
+import { QueryResponse } from "../user-query/services/query";
+import { BarChartValidator } from "./bar-chart/bar-chart-validator";
 import { LineChartValidator } from "./line-chart/line-chart-validator";
+import { PieChartValidator } from "./pie-chart/pie-chart-validator";
 
-export type ChartType = "line" | "bar" | "hBar" | "pie";
+export interface ChartProps {
+    userQuery: UserQuery;
+    data: QueryResponse;
+}
+
+export type ChartType = "line" | "bar" | "hBar" | "pie" | "table";
 export interface Chart {
     type: ChartType;
     validator: (data: UserQuery) => boolean
@@ -10,15 +19,17 @@ export interface Chart {
 export type ChartValidator = (data: UserQuery) => boolean;
 
 
-export function ChartValidatorProvider(t: ChartType): ChartValidator {
+export function chartValidatorProvider(t: ChartType): ChartValidator {
     switch (t) {
         case "line":
             return LineChartValidator;
         case "bar":
-            throw Error("Not implemented")
+            return BarChartValidator;
         case "hBar":
-            throw Error("Not implemented")
+            return BarChartValidator;
         case "pie":
-            throw Error("Not implemented")
+            return PieChartValidator;
+        case "table":
+            return () => true;
     }
 }

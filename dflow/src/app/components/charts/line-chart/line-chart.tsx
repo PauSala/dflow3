@@ -14,15 +14,15 @@ import { UserQuery } from "../../../model/user-query";
 import { QueryResponse } from "../../user-query/services/query";
 import { LineChartData, lineChartDataMapper } from "./line-chart-datamapper";
 import { queryToGraphicable } from "../../user-query/services/data-mapping/mappers";
+import { ChartProps } from "../types";
 
 export interface LineChartWrapperProps {
-  userQuery: UserQuery;
-  data: QueryResponse;
+  chartData: ChartProps;
 }
 
 
-export function LineChartWrapper({ userQuery, data }: LineChartWrapperProps) {
-  const mapped: LineChartData = lineChartDataMapper(queryToGraphicable({q: userQuery, r: data}));
+export function LineChartWrapper({ chartData }: LineChartWrapperProps) {
+  const mapped: LineChartData = lineChartDataMapper(queryToGraphicable({q: chartData.userQuery, r: chartData.data}));
   return (
     <ResponsiveContainer width="85%" height="85%">
       <LineChart
@@ -30,10 +30,10 @@ export function LineChartWrapper({ userQuery, data }: LineChartWrapperProps) {
         height={300}
         data={mapped.values}
         margin={{
-          top: 5,
+          top: 10,
           right: 10,
           left: 10,
-          bottom: 5,
+          bottom: 10,
         }}
       >
         <CartesianGrid horizontal={true} vertical={false} />

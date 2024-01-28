@@ -1,3 +1,4 @@
+'use-client'
 import { Blend, X } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
 import { ColumnSelector } from "../columns/column-selector";

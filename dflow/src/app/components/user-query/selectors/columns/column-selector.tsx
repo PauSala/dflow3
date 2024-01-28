@@ -1,3 +1,4 @@
+'use-client'
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Popover,

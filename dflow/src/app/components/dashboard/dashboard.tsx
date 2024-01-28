@@ -1,3 +1,4 @@
+'use-client'
 import React, { useState } from "react";
 import DflowGrid, { heightInPixels, widthInPixels } from "./dflow-grid";
 import { DbMenu } from "./db-menu";

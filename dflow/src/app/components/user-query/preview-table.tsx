@@ -1,3 +1,4 @@
+'use-client'
 import {
   Table,
   TableBody,
@@ -15,7 +16,7 @@ export function PreviewTable(data: {
   onClose: () => void
 }) {
   return (
-    <div className="relative border border-slate-50 rounded-md p-4 shadow-sm">
+    <div className="relative border border-slate-50 rounded-md p-4 shadow-md">
       <Button variant="ghost" className="absolute top-0 right-0" size="icon" onClick={() => data.onClose()}>
         <X className="h-4 w-4" />
       </Button>

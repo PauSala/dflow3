@@ -1,3 +1,4 @@
+'use-client'
 import React, { useEffect, useState } from "react";
 import { UserQueryBuilder } from "../../../model/user-query";
 import { ChartType } from "../../charts/types";
@@ -40,7 +41,7 @@ export default function Panel({
   return (
     <div style={style}>
       <p>{name}</p>
-      <LineChartWrapper userQuery={userQuery} data={data}></LineChartWrapper>
+      <LineChartWrapper chartData={{data, userQuery}}></LineChartWrapper>
     </div>
   );
 }

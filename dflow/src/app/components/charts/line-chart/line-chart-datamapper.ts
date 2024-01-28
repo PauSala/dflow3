@@ -1,3 +1,4 @@
+'use-client'
 import { ChartDataMapper, GraphicableData } from "../../user-query/services/data-mapping/mappers";
 
 export interface LineChartData {
@@ -10,7 +11,7 @@ export const lineChartDataMapper: ChartDataMapper<LineChartData> = (i: Graphicab
     if (i.categorycalFields.length !== 1) {
         throw new Error("Line chart does not allow more thant one categorycal field");
     }
-    if (i.numericalFields.length > 1) {
+    if (i.numericalFields.length < 1) {
         throw new Error("Line chart does not allow less thant one numerical field");
     }
     return {

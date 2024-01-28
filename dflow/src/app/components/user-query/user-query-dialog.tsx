@@ -1,3 +1,4 @@
+'use-client'
 import { useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
 import { UserQueryBuilder } from "../../model/user-query";
@@ -26,6 +27,7 @@ import SummarizeModule from "./selectors/summarize/summarize-module";
 
 import { query } from "./services/query";
 import { PreviewTable } from "./preview-table";
+import ChartSelector from "./selectors/charts/chart-selector";
 
 export function UserQueryDialog({
   model,
@@ -34,7 +36,6 @@ export function UserQueryDialog({
   model: DataModel;
   onConfirm: (builder: UserQueryBuilder) => void;
 }) {
-
   const [open, setOpen] = useState(false);
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
     new UserQueryBuilder(model, "test", "test")
@@ -43,17 +44,23 @@ export function UserQueryDialog({
   const [joinModules, setJoinModules] = useState<string[]>([]);
   const [summarizeModules, setSummarizeModules] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(true);
+  const [updateAvailableCharts, setUpdateAvailableCharts] = useState(false);
 
   const [preview, setPreview] = useState<{
     columns: Array<string>;
     data: Array<Array<number | string>>;
   }>({ columns: [], data: [] });
 
+  const showAvailableCharts = () => {
+    setUpdateAvailableCharts((old) => !old);
+  };
+
   const resetQuery = () => {
     setTimeout(() => {
       setJoinModules([]);
       setSummarizeModules([]);
       setQueryBuilder(new UserQueryBuilder(model, "test", "test"));
+      setUpdateAvailableCharts((old) => !old);
     });
   };
 
@@ -96,6 +103,7 @@ export function UserQueryDialog({
 
   const onPreview = () => {
     const user_query = queryBuilder.build();
+    showAvailableCharts();
     query(user_query)
       .then((res) => {
         setPreview({ columns: res.columns, data: res.data.slice(0, 4) });
@@ -106,7 +114,7 @@ export function UserQueryDialog({
 
   const onDone = () => {
     onConfirm(queryBuilder);
-    setOpen(false)
+    setOpen(false);
     resetQuery();
   };
 
@@ -199,8 +207,14 @@ export function UserQueryDialog({
             onClose={() => setShowPreview(false)}
           ></PreviewTable>
         )}
+        <ChartSelector
+          builder={queryBuilder}
+          update={updateAvailableCharts}
+        ></ChartSelector>
         <DialogFooter className="sm:justify-start">
-          <Button type="submit" onClick={() => onDone()}>Done</Button>
+          <Button type="submit" onClick={() => onDone()}>
+            Done
+          </Button>
           <DialogClose asChild>
             <Button
               type="button"

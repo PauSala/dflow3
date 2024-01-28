@@ -1,3 +1,4 @@
+'use-client'
 import { Equal } from "lucide-react";
 import { DataModel } from "../../../../model/data-model";
 import { JoinColumnsSelector } from "./join-columns";
