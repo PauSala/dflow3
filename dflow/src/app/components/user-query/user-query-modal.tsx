@@ -1,6 +1,6 @@
 "use-client";
 import { useState } from "react";
-import { DataModel, Table } from "../../model/data-model";
+import { DataModel } from "../../model/data-model";
 import { UserQueryBuilder } from "../../model/user-query";
 import {
   Dialog,
@@ -13,40 +13,35 @@ import {
   DialogTrigger,
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
-import { MainTableSelector } from "./selectors/tables/main-table-selector";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../../components/ui/tooltip";
-import { Blend, Plus, Sigma } from "lucide-react";
-import { v4 } from "uuid";
-import { JoinModule } from "./selectors/join/join-module";
-import SummarizeModule from "./selectors/summarize/summarize-module";
-
-import { query } from "./services/query";
-import { PreviewTable } from "./preview-table";
-import ChartSelector from "./selectors/charts/chart-selector";
+import { UserQuery } from "./user-query";
+import { ArrowLeftCircle, Eye, Plus } from "lucide-react";
+import Visualization from "./visualization/visualization";
+import { Separator } from "../../../components/ui/separator";
+import { ChartType } from "../visualizations/types";
 
 export function UserQueryModal({
   model,
   onConfirm,
 }: {
   model: DataModel;
-  onConfirm: (builder: UserQueryBuilder) => void;
+  onConfirm: (builder: UserQueryBuilder, chartType: ChartType) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
     new UserQueryBuilder(model, "test", "test")
   );
+  const [visualize, setVisualize] = useState(false);
+  const [chartType, setChartType] = useState<ChartType>("table");
 
-  const resetQuery = () => {};
+  const resetState = () => {
+    setVisualize(false);
+    setQueryBuilder(new UserQueryBuilder(model, "test", "test"));
+  };
 
   const onDone = () => {
-    onConfirm(queryBuilder);
+    onConfirm(queryBuilder, chartType);
     setOpen(false);
-    resetQuery();
+    resetState();
   };
 
   return (
@@ -56,23 +51,51 @@ export function UserQueryModal({
           <Plus className="mr-2 h-3 w-3" /> Add panel
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[60rem] max-h-[85vh] overflow-auto">
+      <DialogContent className="min-w-[60rem] max-h-[90vh] overflow-auto">
         <DialogHeader>
           <DialogTitle className="text-slate-700">
             {model.id} DataModel
           </DialogTitle>
         </DialogHeader>
+        <Separator className="my-2" />
 
+        <UserQuery
+          display={!visualize}
+          model={model}
+          queryBuilder={queryBuilder}
+        ></UserQuery>
+
+        {visualize && (
+          <Visualization
+            queryBuilder={queryBuilder}
+            onChartType={(ct: ChartType) => {
+              console.log(ct);
+              setChartType(ct);
+            }}
+          ></Visualization>
+        )}
         <DialogFooter className="sm:justify-start">
-          <Button type="submit" onClick={() => onDone()}>
-            Done
-          </Button>
+          {!visualize && (
+            <Button onClick={() => setVisualize((old) => !old)}>
+              <Eye className="mr-2 w-4 h-4" /> Visualize
+            </Button>
+          )}
+          {visualize && (
+            <Button onClick={() => setVisualize((old) => !old)}>
+              <ArrowLeftCircle className="mr-2 w-4 h-4" /> Back to query
+            </Button>
+          )}
+          {visualize && (
+            <Button type="submit" variant="secondary" onClick={() => onDone()}>
+              Done
+            </Button>
+          )}
           <DialogClose asChild>
             <Button
               type="button"
               variant="secondary"
-              onClick={() => resetQuery()}
               className="w-20"
+              onClick={() => resetState()}
             >
               Close
             </Button>

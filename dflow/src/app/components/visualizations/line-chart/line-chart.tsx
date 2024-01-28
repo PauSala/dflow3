@@ -15,13 +15,14 @@ import { QueryResponse } from "../../user-query/services/query";
 import { LineChartData, lineChartDataMapper } from "./line-chart-datamapper";
 import { queryToGraphicable } from "../../user-query/services/data-mapping/mappers";
 import { ChartProps } from "../types";
+import { ChartWrapperProps } from "../chart-renderer";
 
 export interface LineChartWrapperProps {
   chartData: ChartProps;
 }
 
 
-export function LineChartWrapper({ chartData }: LineChartWrapperProps) {
+export function LineChartWrapper({ chartData }: ChartWrapperProps) {
   const mapped: LineChartData = lineChartDataMapper(queryToGraphicable({q: chartData.userQuery, r: chartData.data}));
   return (
     <ResponsiveContainer width="85%" height="85%">

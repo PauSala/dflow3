@@ -1,4 +1,4 @@
-'use-client'
+"use-client";
 import React, { useState } from "react";
 import DflowGrid, { heightInPixels, widthInPixels } from "./dflow-grid";
 import { DbMenu } from "./db-menu";
@@ -7,13 +7,17 @@ import { UserQueryBuilder } from "../../model/user-query";
 import { Layout } from "react-grid-layout";
 import { PanelProps } from "./panel/panel";
 import { v4 } from "uuid";
+import { ChartType } from "../visualizations/types";
 
 export interface PanelWraper {
   layout: Layout;
   props: PanelProps;
 }
 
-function panelWrapperFactory(builder: UserQueryBuilder): PanelWraper {
+function panelWrapperFactory(
+  builder: UserQueryBuilder,
+  chartType: ChartType
+): PanelWraper {
   const id = v4();
   return {
     layout: {
@@ -24,8 +28,7 @@ function panelWrapperFactory(builder: UserQueryBuilder): PanelWraper {
       h: 10,
       minH: 5,
       minW: 5,
-      isBounded: false
-
+      isBounded: false,
     },
     props: {
       builder: builder,
@@ -33,7 +36,7 @@ function panelWrapperFactory(builder: UserQueryBuilder): PanelWraper {
       id: id,
       content: {
         type: "chart",
-        chartType: "line",
+        chartType: chartType,
       },
       width: widthInPixels(10),
       height: heightInPixels(10),
@@ -46,16 +49,16 @@ export default function Dashboard({ model }: { model: DataModel }) {
 
   const handleResize = (layout: Layout[]) => {
     setPanelWrappers((old) => {
-      return old.map(item => {
-        let found = layout.find(i => i.i === item.layout.i) as Layout;
+      return old.map((item) => {
+        let found = layout.find((i) => i.i === item.layout.i) as Layout;
         item.layout = found;
-        return item
-      })
+        return item;
+      });
     });
   };
 
-  const addPanelWrapper = (builder: UserQueryBuilder) => {
-    const newWrapper = panelWrapperFactory(builder);
+  const addPanelWrapper = (builder: UserQueryBuilder, chartType: ChartType) => {
+    const newWrapper = panelWrapperFactory(builder, chartType);
     setPanelWrappers((old) => {
       return [...old, newWrapper];
     });

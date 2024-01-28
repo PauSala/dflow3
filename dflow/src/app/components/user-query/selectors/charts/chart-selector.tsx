@@ -1,63 +1,48 @@
-'use-client'
-import React, { useEffect, useState } from "react";
+"use-client";
 import { Button } from "../../../../../components/ui/button";
-import {
-  BarChart3,
-  LineChart,
-  PieChart,
-  ScatterChart,
-  SigmaSquare,
-  Table,
-} from "lucide-react";
-import { UserQueryBuilder } from "../../../../model/user-query";
-import { ChartType, chartValidatorProvider } from "../../../visualizations/types";
-
-type DrawableChartsState = {
-  [T in ChartType]: boolean;
-};
-
-const defaultDrawableChartState: DrawableChartsState = {
-  line: false,
-  pie: false,
-  bar: false,
-  table: true,
-  hBar: false,
-};
+import { BarChart3, LineChart, PieChart, Table } from "lucide-react";
+import { DrawableChartsState } from "../../visualization/visualization";
+import { ChartType } from "../../../visualizations/types";
 
 export default function ChartSelector({
-  builder,
-  update,
+  validated,
+  onChange,
 }: {
-  builder: UserQueryBuilder;
-  update: boolean;
+  validated: DrawableChartsState;
+  onChange: (chartType: ChartType) => void;
 }) {
-  const [validated, setValidated] = useState<DrawableChartsState>(
-    defaultDrawableChartState
-  );
-  useEffect(() => {
-    const query = builder.build();
-    setValidated(() => {
-      return {
-        bar: chartValidatorProvider("bar")(query),
-        hBar: chartValidatorProvider("hBar")(query),
-        line: chartValidatorProvider("line")(query),
-        pie: chartValidatorProvider("pie")(query),
-        table: chartValidatorProvider("table")(query),
-      };
-    });
-  }, [builder, update]);
   return (
     <div className="flex items-center gap-2 p-1 border rounded-md bg-stone-50">
-      <Button variant="ghost" size="icon" disabled={!validated.table}>
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={!validated.table.enabled}
+        onClick={() => onChange(validated.table.name)}
+      >
         <Table className="text-stone-800" />
       </Button>
-      <Button variant="ghost" size="icon" disabled={!validated.line}>
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={!validated.line.enabled}
+        onClick={() => onChange(validated.line.name)}
+      >
         <LineChart className="text-stone-800" />
       </Button>
-      <Button variant="ghost" size="icon" disabled={!validated.bar}>
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={!validated.bar.enabled}
+        onClick={() => (onChange(validated.bar.name))}
+      >
         <BarChart3 className="text-stone-800" />
       </Button>
-      <Button variant="ghost" size="icon" disabled={!validated.pie}>
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={!validated.pie.enabled}
+        onClick={() => onChange(validated.pie.name)}
+      >
         <PieChart className="text-stone-800" />
       </Button>
       {/*       <Button variant="ghost" size="icon">

@@ -5,8 +5,6 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
   MenubarSeparator,
   MenubarShortcut,
   MenubarSub,
@@ -15,16 +13,16 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { DataModel } from "../../model/data-model";
-import { UserQuery } from "../user-query/user-query";
 import { UserQueryBuilder } from "../../model/user-query";
 import { UserQueryModal } from "../user-query/user-query-modal";
+import { ChartType } from "../visualizations/types";
 
 export function DbMenu({
   model,
   onAddPanel,
 }: {
   model: DataModel;
-  onAddPanel: (builder: UserQueryBuilder) => void;
+  onAddPanel: (builder: UserQueryBuilder, chartType: ChartType) => void;
 }) {
   return (
     <Menubar>

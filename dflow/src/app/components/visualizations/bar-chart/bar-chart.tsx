@@ -14,12 +14,10 @@ import {
   ReferenceLine,
   Bar,
 } from "recharts";
+import { ChartWrapperProps } from "../chart-renderer";
 
-export interface BarChartWrapperProps {
-  chartData: ChartProps;
-}
 
-export default function BarChartWrapper({ chartData }: BarChartWrapperProps) {
+export default function BarChartWrapper({ chartData }: ChartWrapperProps) {
   const mapped: BarChartData = barChartDataMapper(
     queryToGraphicable({ q: chartData.userQuery, r: chartData.data })
   );
@@ -33,7 +31,7 @@ export default function BarChartWrapper({ chartData }: BarChartWrapperProps) {
           top: 50,
           right: 0,
           left: 0,
-          bottom: 0,
+          bottom: 20,
         }}
       >
         <CartesianGrid horizontal={true} vertical={false} />
@@ -46,14 +44,11 @@ export default function BarChartWrapper({ chartData }: BarChartWrapperProps) {
         <YAxis tick={{ fontSize: "0.7em" }} axisLine={false} tickLine={false} />
         <Tooltip />
         <Legend />
-        <ReferenceLine y={0} stroke="#000" />
+
+        {/* Issue with this: https://github.com/recharts/recharts/issues/3615
+          <ReferenceLine y={0} stroke="#000" /> */}
         {mapped.numericalFields.map((col) => (
-          <Bar
-            key={col}
-            type="monotone"
-            dataKey={col}
-            fill="#8884d8"
-          />
+          <Bar key={col} type="monotone" dataKey={col} fill="#8884d8" />
         ))}
       </BarChart>
     </ResponsiveContainer>
