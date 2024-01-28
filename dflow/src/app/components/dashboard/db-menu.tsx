@@ -15,8 +15,9 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { DataModel } from "../../model/data-model";
-import { UserQueryDialog } from "../user-query/user-query-dialog";
+import { UserQuery } from "../user-query/user-query";
 import { UserQueryBuilder } from "../../model/user-query";
+import { UserQueryModal } from "../user-query/user-query-modal";
 
 export function DbMenu({
   model,
@@ -31,7 +32,7 @@ export function DbMenu({
         <p className="font-normal text-cyan-800">DASHBOARD TITLE</p>
       </div>
       <div>
-        <UserQueryDialog model={model} onConfirm={onAddPanel}></UserQueryDialog>
+        <UserQueryModal model={model} onConfirm={onAddPanel}></UserQueryModal>
       </div>
 
       <MenubarMenu>

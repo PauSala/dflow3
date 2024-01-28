@@ -29,7 +29,7 @@ import { query } from "./services/query";
 import { PreviewTable } from "./preview-table";
 import ChartSelector from "./selectors/charts/chart-selector";
 
-export function UserQueryDialog({
+export function UserQuery({
   model,
   onConfirm,
 }: {
