@@ -130,7 +130,6 @@ export function UserQueryDialog({
           <DialogTitle className="text-slate-700">
             {model.id} DataModel
           </DialogTitle>
-          <DialogDescription>Select some table to start</DialogDescription>
         </DialogHeader>
         <MainTableSelector
           model={model}

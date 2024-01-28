@@ -19,5 +19,4 @@ export const lineChartDataMapper: ChartDataMapper<LineChartData> = (i: Graphicab
         categoricalField: i.categorycalFields[0],
         numericalFields: i.numericalFields
     }
-
 }

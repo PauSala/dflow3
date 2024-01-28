@@ -1,9 +1,10 @@
 'use-client'
 import React, { useEffect, useState } from "react";
 import { UserQueryBuilder } from "../../../model/user-query";
-import { ChartType } from "../../charts/types";
-import { LineChartWrapper } from "../../charts/line-chart/line-chart";
+import { ChartType } from "../../visualizations/types";
+import { LineChartWrapper } from "../../visualizations/line-chart/line-chart";
 import { QueryResponse, query } from "../../user-query/services/query";
+import BarChartWrapper from "../../visualizations/bar-chart/bar-chart";
 
 export type PanelContentType = {
   type: "chart";
@@ -41,7 +42,7 @@ export default function Panel({
   return (
     <div style={style}>
       <p>{name}</p>
-      <LineChartWrapper chartData={{data, userQuery}}></LineChartWrapper>
+      <BarChartWrapper chartData={{data, userQuery}}></BarChartWrapper>
     </div>
   );
 }

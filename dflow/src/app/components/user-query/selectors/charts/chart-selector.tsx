@@ -10,7 +10,7 @@ import {
   Table,
 } from "lucide-react";
 import { UserQueryBuilder } from "../../../../model/user-query";
-import { ChartType, chartValidatorProvider } from "../../../charts/types";
+import { ChartType, chartValidatorProvider } from "../../../visualizations/types";
 
 type DrawableChartsState = {
   [T in ChartType]: boolean;
