@@ -1,20 +1,19 @@
 'use client';
-import { ImStack, ImHome } from "react-icons/im";
-import { IoMdStats } from "react-icons/io";
+import { Database, LayoutDashboard, Settings } from "lucide-react";
+
 
 export default function NavBar() {
   const iconClass =
-    "hover:text-sky-400 text-2xl text-slate-600 duration-200 text-2xl mb-4";
+    "hover:text-emerald-600 text-2xl text-slate-600 duration-200 text-2xl mb-4";
   return (
-    <div className="min-h-screen w-12 p-1 flex flex-col items-center bg-zinc-100">
-      <IoMdStats
-        className={iconClass + " mt-2 cursor-pointer"}
-        onClick={() => void 0}
-      />
-      <ImStack
+    <div className="min-h-screen w-12 p-1 flex flex-col items-center bg-zinc-50">
+      <LayoutDashboard 
         className={iconClass + " cursor-pointer"}
-        onClick={() => void 0}
       />
+      <Database
+        className={iconClass + " mt-2 cursor-pointer"}
+      />
+      <Settings  className={iconClass + " mt-2 cursor-pointer"}/>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
-import { UserQuery, UserQueryBuilder } from "../../model/user-query";
+import { UserQueryBuilder } from "../../model/user-query";
 import {
   Dialog,
   DialogClose,
@@ -19,19 +19,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../components/ui/tooltip";
-import { Blend, Sigma } from "lucide-react";
+import { Blend, Plus, Sigma } from "lucide-react";
 import { v4 } from "uuid";
 import { JoinModule } from "./selectors/join/join-module";
 import SummarizeModule from "./selectors/summarize/summarize-module";
 
-import { query } from "../../services/query";
+import { query } from "./services/query";
 import { PreviewTable } from "./preview-table";
 
-export function UserQueryDialog({ model }: { model: DataModel }) {
+export function UserQueryDialog({
+  model,
+  onConfirm,
+}: {
+  model: DataModel;
+  onConfirm: (builder: UserQueryBuilder) => void;
+}) {
+
+  const [open, setOpen] = useState(false);
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
     new UserQueryBuilder(model, "test", "test")
   );
-
   const [mainTable, setMainTable] = useState<Table>();
   const [joinModules, setJoinModules] = useState<string[]>([]);
   const [summarizeModules, setSummarizeModules] = useState<string[]>([]);
@@ -89,7 +96,6 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
 
   const onPreview = () => {
     const user_query = queryBuilder.build();
-    console.log(user_query);
     query(user_query)
       .then((res) => {
         setPreview({ columns: res.columns, data: res.data.slice(0, 4) });
@@ -98,10 +104,18 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
       .catch((e) => console.log(e));
   };
 
+  const onDone = () => {
+    onConfirm(queryBuilder);
+    setOpen(false)
+    resetQuery();
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Query Model</Button>
+        <Button variant="ghost" className="h-7 rounded">
+          <Plus className="mr-2 h-3 w-3" /> Add panel
+        </Button>
       </DialogTrigger>
       <DialogContent className="min-w-[60rem] max-h-[85vh] overflow-auto">
         <DialogHeader>
@@ -186,6 +200,7 @@ export function UserQueryDialog({ model }: { model: DataModel }) {
           ></PreviewTable>
         )}
         <DialogFooter className="sm:justify-start">
+          <Button type="submit" onClick={() => onDone()}>Done</Button>
           <DialogClose asChild>
             <Button
               type="button"

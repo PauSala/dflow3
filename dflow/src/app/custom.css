@@ -1,0 +1,8 @@
+
+.react-grid-placeholder {
+    background-color: rgba(221, 221, 221, 0.651) !important;
+}
+
+.react-resizable-handle.react-resizable-handle-se {
+    opacity: 0 !important;
+}

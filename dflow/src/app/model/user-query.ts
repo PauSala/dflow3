@@ -116,7 +116,6 @@ export class UserQueryBuilder {
     }
 
     public build(): UserQuery {
-        console.log(this.joins, Array.from(this.joins.values()));
         let columns: QueryColumn[] = [];
         this.tables.forEach((cols, _) => {
             cols.forEach(c => columns.push(c));
