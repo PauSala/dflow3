@@ -1,3 +1,4 @@
+'use-client'
 import { Column, DataModel, Table } from "./data-model";
 
 export type AggregationValue = null | "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct"
@@ -82,10 +83,15 @@ export interface UserQuery {
     }
 }
 
+type Primitives = string | number | boolean | symbol | null | undefined;
+
+type NonShallowCopyableObject<T> = { [K in keyof T]: T[K] extends Primitives ? T[K] : never };
+
 export class UserQueryBuilder {
 
     private tables: Map<number, QueryColumn[]> = new Map();
     private joins: Map<string, JoinDefinition> = new Map();
+
 
     constructor(
         private model: DataModel,
@@ -93,9 +99,29 @@ export class UserQueryBuilder {
         private model_id: string,
     ) { }
 
+    public getModel() {
+        return this.model;
+    }
+
+    private cloneMap<T extends NonShallowCopyableObject<T>>(map: Map<unknown, T[]> | Map<unknown, T>) {
+        let newMap = new Map();
+        if (typeof map)
+            map.forEach((value, key) => {
+                if (Array.isArray(value)) {
+                    let newA = value.map(v => ({ ...v }));
+                    newMap.set(key, newA);
+                }
+                else {
+                    newMap.set(key, { ...value })
+                }
+            });
+        return newMap;
+    }
+
     public newInstance(): UserQueryBuilder {
         const newInstance = new UserQueryBuilder(this.model, this.datasource_id, this.model_id);
-        newInstance.tables = this.tables;
+        newInstance.tables = this.cloneMap(this.tables);
+        newInstance.joins = this.cloneMap(this.joins);
         return newInstance;
     }
 
@@ -109,6 +135,15 @@ export class UserQueryBuilder {
             node = cols;
             this.tables.set(table_id, node);
         }
+    }
+
+    public getMainTable() {
+        const mapIterator = this.tables.entries();
+        const firstElement: [number, QueryColumn[]] | undefined = mapIterator.next().value;
+        if(firstElement){
+            return this.model.tables[firstElement[0]];
+        }
+        return firstElement
     }
 
     public deleteTable(table_id: number) {

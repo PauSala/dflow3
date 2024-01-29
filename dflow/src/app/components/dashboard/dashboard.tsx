@@ -40,6 +40,7 @@ function panelWrapperFactory(
       },
       width: widthInPixels(10),
       height: heightInPixels(10),
+      resizing: false
     },
   };
 }

@@ -22,15 +22,15 @@ export default function BarChartWrapper({ chartData }: ChartWrapperProps) {
     queryToGraphicable({ q: chartData.userQuery, r: chartData.data })
   );
   return (
-    <ResponsiveContainer width="85%" height="85%">
+    <ResponsiveContainer width="95%" height="90%">
       <BarChart
         width={500}
         height={300}
         data={mapped.values}
         margin={{
-          top: 50,
-          right: 0,
-          left: 0,
+          top: 20,
+          right: 20,
+          left: 20,
           bottom: 20,
         }}
       >

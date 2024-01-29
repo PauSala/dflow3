@@ -25,16 +25,16 @@ export interface LineChartWrapperProps {
 export function LineChartWrapper({ chartData }: ChartWrapperProps) {
   const mapped: LineChartData = lineChartDataMapper(queryToGraphicable({q: chartData.userQuery, r: chartData.data}));
   return (
-    <ResponsiveContainer width="85%" height="85%">
+    <ResponsiveContainer width="95%" height="90%">
       <LineChart
         width={500}
         height={300}
         data={mapped.values}
         margin={{
-          top: 10,
-          right: 10,
-          left: 10,
-          bottom: 10,
+          top: 20,
+          right: 20,
+          left: 20,
+          bottom: 20,
         }}
       >
         <CartesianGrid horizontal={true} vertical={false} />

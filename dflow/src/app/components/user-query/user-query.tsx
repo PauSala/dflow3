@@ -1,5 +1,5 @@
 "use-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
 import { UserQueryBuilder } from "../../model/user-query";
 import { Button } from "../../../components/ui/button";
@@ -31,6 +31,12 @@ export function UserQuery({
   const [joinModules, setJoinModules] = useState<string[]>([]);
   const [summarizeModules, setSummarizeModules] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    console.log("Use Effect UserQuery")
+    let table = queryBuilder.getMainTable();
+    console.log({table})
+  },[queryBuilder])
 
   const [preview, setPreview] = useState<{
     columns: Array<string>;

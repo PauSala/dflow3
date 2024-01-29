@@ -2,7 +2,7 @@ import { Play } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
 import { ColumnSelector } from "../columns/column-selector";
 import { TableSelector } from "./table-selector";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Column, DataModel, Table } from "../../../../model/data-model";
 import { UserQueryBuilder } from "../../../../model/user-query";
 
@@ -17,8 +17,8 @@ export function MainTableSelector({
   onTableSelect: (table: Table) => void;
   onPreview: () => void
 }) {
+  
   const [selectedTable, setSelectedTable] = useState<Table>();
-
   const onSelectTable = (table: Table) => {
     setSelectedTable(table);
     onTableSelect(table);
