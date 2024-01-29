@@ -1,3 +1,4 @@
+"use-client";
 import React from "react";
 import { ChartProps, ChartType } from "./types";
 import BarChartWrapper from "./bar-chart/bar-chart";
@@ -7,13 +8,13 @@ export interface ChartWrapperProps {
   chartData: ChartProps;
 }
 
-export const ChartRenderer = ({
+export function ChartRenderer({
   chartType,
   chartProps,
 }: {
   chartType: ChartType;
   chartProps: ChartWrapperProps;
-}) => {
+}) {
   let ChartComponent;
   switch (chartType) {
     case "bar":
@@ -23,9 +24,11 @@ export const ChartRenderer = ({
       ChartComponent = LineChartWrapper;
       break;
     default:
-      ChartComponent = () => <div>Not implemented yet!</div>;
+      ChartComponent = function Default() {
+        return <div>Not implemented yet!</div>;
+      };
   }
 
   // Render the determined component
   return <ChartComponent chartData={chartProps.chartData} />;
-};
+}

@@ -29,9 +29,9 @@ export default function Visualization({
   );
   const [chartType, setChartType] = useState<ChartType>("table");
   const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
-  const userQuery = queryBuilder.build();
 
   useEffect(() => {
+    const userQuery = queryBuilder.build();
     setValidated(() => {
       return {
         bar: { enabled: chartValidatorProvider("bar")(userQuery), name: "bar" },
@@ -55,7 +55,7 @@ export default function Visualization({
       setData(data);
     };
     getData();
-  }, []);
+  }, [queryBuilder]);
 
   const onChartChange = async (ct: ChartType) => {
     setChartType(ct);
@@ -72,7 +72,7 @@ export default function Visualization({
         <ChartRenderer
           chartType={chartType}
           chartProps={{
-            chartData: { data, userQuery },
+            chartData: { data, userQuery: queryBuilder.build() },
           }}
         ></ChartRenderer>
       </div>
