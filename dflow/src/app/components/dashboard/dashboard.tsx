@@ -23,7 +23,7 @@ function panelWrapperFactory(
     layout: {
       i: id,
       x: 0,
-      y: 3,
+      y: 0,
       w: 10,
       h: 10,
       minH: 5,
