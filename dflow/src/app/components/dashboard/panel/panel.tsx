@@ -1,11 +1,9 @@
-"use-client";
+"use client";
 import React, { useEffect, useState } from "react";
 import { UserQueryBuilder } from "../../../model/user-query";
 import { ChartType } from "../../visualizations/types";
 import { QueryResponse, query } from "../../user-query/services/query";
 import { ChartRenderer } from "../../visualizations/chart-renderer";
-import { Button } from "../../../../components/ui/button";
-import { MoreVertical } from "lucide-react";
 import PanelConfiguration from "./panel-configuration/panel-configuration";
 
 export type PanelContentType = {
@@ -21,6 +19,7 @@ export interface PanelProps {
   width: number;
   height: number;
   resizing: boolean;
+  onContentChange:  (builder: UserQueryBuilder, chartType: ChartType, panelId: string) => void
 }
 
 export default function Panel({
@@ -31,10 +30,13 @@ export default function Panel({
   width,
   height,
   resizing,
+  onContentChange
 }: PanelProps) {
   const style = { width: `${width}px`, height: `${height}px` };
   const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
   const [loading, setLoading] = useState(true);
+
+  const onChange = (builder: UserQueryBuilder, chartType: ChartType) => onContentChange(builder, chartType, id); 
 
   useEffect(() => {
     const userQuery = builder.build();
@@ -49,7 +51,7 @@ export default function Panel({
     <div style={style} className="flex flex-col">
       <div className="flex flex-row justify-between items-center p-2">
         <p className="text-normal ml-4">{content.chartType}</p>
-        <PanelConfiguration builder={builder}></PanelConfiguration>
+        <PanelConfiguration builder={builder} onConfirm={onChange}></PanelConfiguration>
       </div>
       {!loading && !resizing && (
         <ChartRenderer

@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../../../../components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../../../components/ui/button";
 import {
   Command,
@@ -19,14 +19,21 @@ import { Table } from "../../../../model/data-model";
 export function TableSelector({
   tableMap,
   onSelect,
+  defaultValue,
 }: {
   tableMap: Record<string, Table>;
   onSelect: (table: Table) => void;
+  defaultValue?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
   const tables = Object.values(tableMap);
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>

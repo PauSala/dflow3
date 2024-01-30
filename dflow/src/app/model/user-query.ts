@@ -1,4 +1,6 @@
-'use-client'
+'use client'
+import { v4 } from "uuid";
+import { AggregationModulesState, JoinModulesState, UserQueryState } from "../components/user-query/services/query-from-builder";
 import { Column, DataModel, Table } from "./data-model";
 
 export type AggregationValue = null | "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct"
@@ -103,6 +105,14 @@ export class UserQueryBuilder {
         return this.model;
     }
 
+    public getJoins() {
+        return this.joins;
+    }
+
+    public getAggregations() {
+        return []
+    }
+
     private cloneMap<T extends NonShallowCopyableObject<T>>(map: Map<unknown, T[]> | Map<unknown, T>) {
         let newMap = new Map();
         if (typeof map)
@@ -140,10 +150,14 @@ export class UserQueryBuilder {
     public getMainTable() {
         const mapIterator = this.tables.entries();
         const firstElement: [number, QueryColumn[]] | undefined = mapIterator.next().value;
-        if(firstElement){
+        if (firstElement) {
             return this.model.tables[firstElement[0]];
         }
         return firstElement
+    }
+
+    public getColumns(table_id: number) {
+        return this.tables.get(table_id);
     }
 
     public deleteTable(table_id: number) {
@@ -232,5 +246,57 @@ export class UserQueryBuilder {
             order: null,
             data_type: column.type_alias
         });
+    }
+
+    public userQueryState(): UserQueryState | undefined {
+        //Set main table info
+        const mainTable = this.getMainTable();
+        if (!mainTable) {
+            return undefined
+        }
+        const mainTableColumns = this.getColumns(mainTable.table_id)
+            ?.map(c => mainTable.columns[c.column_id]) || [];
+
+        //Set joins info
+        const joinModules: JoinModulesState[] = [];
+        this.joins.forEach((value, key) => {
+            const mainTable = this.model.tables[value.main_table_id];
+            joinModules.push({
+                id: key,
+                mainTable: mainTable,
+                mainTableColumns:
+                    this.getColumns(value.main_table_id)
+                        ?.map(c => mainTable.columns[c.column_id]) || [],
+                joinDefinition: {
+                    mainTableColumn: mainTable.columns[value.main_field_id],
+                    joinTable: this.model.tables[value.join_table_id],
+                    joinColumn: this.model.tables[value.join_table_id].columns[value.join_field_id]
+                }
+            });
+        });
+
+        //Set aggregation info
+        const aggregationModules: AggregationModulesState[] = [];
+        this.tables.forEach((columns, key) => {
+            columns.forEach(col => {
+                if(col.aggregation !== null){
+                    aggregationModules.push(
+                        {
+                            id: v4(),
+                            table: this.model.tables[key],
+                            column: this.model.tables[key].columns[col.column_id],
+                            aggregation: col.aggregation
+                        }
+                    )
+                }
+            });
+        })
+
+        return {
+            mainTable,
+            mainTableColumns,
+            joinModules,
+            aggregationModules: aggregationModules
+        }
     }
 }

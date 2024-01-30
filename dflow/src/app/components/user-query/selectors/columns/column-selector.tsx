@@ -1,4 +1,4 @@
-'use-client'
+'use client'
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Popover,
@@ -28,16 +28,19 @@ import ColumnIcon from "./column-icon";
 export function ColumnSelector({
   columnMap,
   onColumnSelect,
+  defaultValue
+
 }: {
   columnMap: Record<string, Column>;
   onColumnSelect: (cols: Array<Column>) => void;
+  defaultValue?: Column[]
 }) {
   const [open, setOpen] = useState(false);
   const [selection, setSelection] = useState<Column[]>([]);
   const columns = Object.values(columnMap);
 
   useEffect(() => {
-    setSelection([]);
+    setSelection(defaultValue || []);
   }, [columnMap]);
 
   const onSelect = (currentValue: string) => {

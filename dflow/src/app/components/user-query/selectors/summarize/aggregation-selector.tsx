@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../../../../components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../../../components/ui/button";
 import {
   Command,
@@ -14,6 +14,7 @@ import {
   CommandItem,
   CommandList,
 } from "../../../../../components/ui/command";
+import { AggregationValue } from "../../../../model/user-query";
 
 export type AggregationT = {
   value: "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct";
@@ -21,11 +22,19 @@ export type AggregationT = {
 
 export function AggregationSelector({
   onSelect,
+  defaultValue
 }: {
   onSelect: (table: AggregationT) => void;
+  defaultValue?: AggregationValue
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(()=> {
+    if(defaultValue){
+      setValue(defaultValue.toLowerCase());
+    }
+  }, [defaultValue]);
 
   const aggregationTypes: AggregationT[] = [
     { value: "Sum" },
@@ -62,10 +71,10 @@ export function AggregationSelector({
           <CommandList>
             <CommandEmpty>No aggregation found. </CommandEmpty>
             <CommandGroup heading="Suggestions">
-              {aggregationTypes.map((table) => (
+              {aggregationTypes.map((agg) => (
                 <CommandItem
-                  key={table.value}
-                  value={table.value}
+                  key={agg.value}
+                  value={agg.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     onSelect(
@@ -79,7 +88,7 @@ export function AggregationSelector({
                   }}
                 >
                   <p className="w-[18rem] whitespace-nowrap text-ellipsis overflow-hidden">
-                    {table.value}
+                    {agg.value}
                   </p>
                 </CommandItem>
               ))}

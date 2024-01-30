@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 import React from "react";
 import { ChartProps, ChartType } from "./types";
 import BarChartWrapper from "./bar-chart/bar-chart";

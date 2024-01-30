@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -18,8 +19,10 @@ import Visualization from "../../../user-query/visualization/visualization";
 
 export default function PanelConfiguration({
   builder,
+  onConfirm
 }: {
   builder: UserQueryBuilder;
+  onConfirm: (builder: UserQueryBuilder, chartType: ChartType) => void
 }) {
   const [open, setOpen] = useState(false);
   const [visualize, setVisualize] = useState(false);
@@ -28,19 +31,21 @@ export default function PanelConfiguration({
   const model = builder.getModel();
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>();
 
-
-  //Set a new instance in order to avoid re-render
+  //Set a new instance in order to avoid re-render and handle builderChanges
   useEffect(() => {
-    console.log("useEffect PanelConfiguration")
     setQueryBuilder(builder.newInstance());
   }, [builder]);
 
   const resetState = () => {
+    setQueryBuilder(builder.newInstance())
     setVisualize(false);
   };
 
   const onDone = () => {
     setOpen(false);
+    if(queryBuilder){
+      onConfirm(queryBuilder, chartType);
+    }
     resetState();
   };
   return (
@@ -53,7 +58,7 @@ export default function PanelConfiguration({
           <MoreVertical className="w-4 h-4 text-zinc-600" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[60rem] max-h-[90vh] overflow-auto">
+      <DialogContent className="min-w-[60rem] max-h-[90vh] overflow-auto cancelDraggEvent">
         <DialogHeader>
           <DialogTitle className="text-slate-700">
             {model.id} DataModel
@@ -73,7 +78,6 @@ export default function PanelConfiguration({
           <Visualization
             queryBuilder={queryBuilder}
             onChartType={(ct: ChartType) => {
-              console.log(ct);
               setChartType(ct);
             }}
           ></Visualization>

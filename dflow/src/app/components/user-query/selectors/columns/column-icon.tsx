@@ -1,4 +1,4 @@
-'use-client'
+'use client'
 import { Calendar, Sigma, Type } from "lucide-react";
 import React from "react";
 

@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../../../../components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../../../../components/ui/button";
 import {
   Command,
@@ -20,12 +20,20 @@ import { AggregationValue } from "../../../../model/user-query";
 export function AggregationColumnSelector({
   columns,
   onSelect,
+  defaultValue
 }: {
   columns: { column: Column & { agg: AggregationValue }; table: Table }[];
   onSelect: (table: { column: Column; table: Table }) => void;
+  defaultValue?: string
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(()=> {
+    if(defaultValue){
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
@@ -52,10 +60,10 @@ export function AggregationColumnSelector({
           <CommandList>
             <CommandEmpty>No column found. </CommandEmpty>
             <CommandGroup heading="Suggestions">
-              {columns.map((table) => (
+              {columns.map((col) => (
                 <CommandItem
-                  key={table.column.column_id}
-                  value={table.column.name}
+                  key={`${col.column.column_id}${col.table.table_id}`}
+                  value={col.column.name}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     onSelect(
@@ -68,7 +76,7 @@ export function AggregationColumnSelector({
                   }}
                 >
                   <p className="w-[18rem] whitespace-nowrap text-ellipsis overflow-hidden">
-                    {table.column.display_name} ({table.table.display_name})
+                    {col.column.display_name} ({col.table.display_name})
                   </p>
                 </CommandItem>
               ))}

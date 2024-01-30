@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 import { useEffect, useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
 import { UserQueryBuilder } from "../../model/user-query";
@@ -17,6 +17,7 @@ import SummarizeModule from "./selectors/summarize/summarize-module";
 
 import { query } from "./services/query";
 import { PreviewTable } from "./preview-table";
+import { UserQueryState } from "./services/query-from-builder";
 
 export function UserQuery({
   model,
@@ -31,12 +32,17 @@ export function UserQuery({
   const [joinModules, setJoinModules] = useState<string[]>([]);
   const [summarizeModules, setSummarizeModules] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [userQueryState, setUserQueryState] = useState<
+    UserQueryState | undefined
+  >(undefined);
 
   useEffect(() => {
-    console.log("Use Effect UserQuery")
-    let table = queryBuilder.getMainTable();
-    console.log({table})
-  },[queryBuilder])
+    const state = queryBuilder.userQueryState();
+    setUserQueryState(state);
+    setMainTable(state?.mainTable);
+    setJoinModules(state?.joinModules.map((m) => m.id) || []);
+    setSummarizeModules(state?.aggregationModules.map((m) => m.id) || []);
+  }, [queryBuilder]);
 
   const [preview, setPreview] = useState<{
     columns: Array<string>;
@@ -107,6 +113,7 @@ export function UserQuery({
         builder={queryBuilder}
         onTableSelect={onMainTableSelect}
         onPreview={onPreview}
+        defaultValue={userQueryState}
       ></MainTableSelector>
 
       {mainTable &&
@@ -117,6 +124,7 @@ export function UserQuery({
             id={id}
             builder={queryBuilder}
             model={model}
+            defaultValue={userQueryState?.joinModules.find((s) => s.id === id)}
           ></JoinModule>
         ))}
 
@@ -148,6 +156,9 @@ export function UserQuery({
             id={id}
             columns={queryBuilder.getSumarizableColumns()}
             builder={queryBuilder}
+            defaultValue={userQueryState?.aggregationModules.find(
+              (s) => s.id === id
+            )}
           ></SummarizeModule>
         ))}
       <TooltipProvider delayDuration={100}>
@@ -177,10 +188,6 @@ export function UserQuery({
           onClose={() => setShowPreview(false)}
         ></PreviewTable>
       )}
-      {/*         <ChartSelector
-          builder={queryBuilder}
-          update={updateAvailableCharts}
-        ></ChartSelector> */}
     </div>
   );
 }

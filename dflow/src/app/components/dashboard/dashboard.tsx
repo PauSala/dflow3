@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 import React, { useState } from "react";
 import DflowGrid, { heightInPixels, widthInPixels } from "./dflow-grid";
 import { DbMenu } from "./db-menu";
@@ -40,7 +40,8 @@ function panelWrapperFactory(
       },
       width: widthInPixels(10),
       height: heightInPixels(10),
-      resizing: false
+      resizing: false,
+      onContentChange(builder, chartType) {},
     },
   };
 }
@@ -65,6 +66,22 @@ export default function Dashboard({ model }: { model: DataModel }) {
     });
   };
 
+  const onPanelContentChange = (
+    builder: UserQueryBuilder,
+    chartType: ChartType,
+    panelId: string
+  ) => {
+    setPanelWrappers((old) => {
+      let found = old.find((o) => o.props.id === panelId);
+      if (found) {
+        found.props.content.chartType = chartType;
+        found.props.builder = builder;
+        return [...old.filter((o) => o.props.id !== panelId), found];
+      }
+      return [...old];
+    });
+  };
+
   return (
     <div className="h-full p-1 m-2 flex justify-center">
       <div className="flex flex-col gap-2">
@@ -72,6 +89,7 @@ export default function Dashboard({ model }: { model: DataModel }) {
         <DflowGrid
           wrappers={panelWrappers}
           handleResize={handleResize}
+          onContentChange={onPanelContentChange}
         ></DflowGrid>
       </div>
     </div>

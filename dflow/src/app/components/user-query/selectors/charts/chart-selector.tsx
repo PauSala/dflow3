@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 import { Button } from "../../../../../components/ui/button";
 import { BarChart3, LineChart, PieChart, Table } from "lucide-react";
 import { DrawableChartsState } from "../../visualization/visualization";

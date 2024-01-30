@@ -1,4 +1,4 @@
-'use-client'
+"use client";
 import { Divide, Table2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Column, DataModel, Table } from "../../../../model/data-model";
 import ColumnIcon from "../columns/column-icon";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Selection({ table, column }: { table: Table; column: Column }) {
   return (
@@ -36,15 +36,25 @@ export function JoinColumnsSelector({
   model,
   filter,
   onSelectColumn,
+  defaultValue,
 }: {
   model: DataModel;
   filter?: number;
   onSelectColumn: (column_id: number, table_id: number) => void;
+  defaultValue?: {
+    table: Table;
+    column: Column;
+  };
 }) {
   const [selection, setSelection] = useState<{
     table: Table;
     column: Column;
   }>();
+  useEffect(() => {
+    if (defaultValue) {
+      setSelection(defaultValue);
+    }
+  }, [defaultValue]);
   const tables = Object.values(model.tables).filter((t) =>
     filter ? t.table_id === filter : true
   );

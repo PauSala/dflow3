@@ -1,13 +1,15 @@
-'use-client'
+"use client";
 import { Equal } from "lucide-react";
 import { DataModel } from "../../../../model/data-model";
 import { JoinColumnsSelector } from "./join-columns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { JoinModulesState } from "../../services/query-from-builder";
 
 export function JoinColumnsModule({
   model,
   onFullSelection,
   filter,
+  defaultValue,
 }: {
   model: DataModel;
   filter: number;
@@ -17,6 +19,7 @@ export function JoinColumnsModule({
     table2: number,
     col2: number
   ) => void;
+  defaultValue?: JoinModulesState;
 }) {
   const [selection, setSelection] = useState<{
     table1?: number;
@@ -24,6 +27,17 @@ export function JoinColumnsModule({
     table2?: number;
     col2?: number;
   }>();
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelection({
+        table1: defaultValue.mainTable.table_id,
+        col1: defaultValue.joinDefinition.mainTableColumn.column_id,
+        table2: defaultValue.joinDefinition.joinTable.table_id,
+        col2: defaultValue.joinDefinition.joinColumn.column_id,
+      });
+    }
+  }, [defaultValue]);
 
   const set = (
     col1?: number,
@@ -61,11 +75,27 @@ export function JoinColumnsModule({
         model={model}
         filter={filter}
         onSelectColumn={(col, table) => set(col, table, undefined, undefined)}
+        defaultValue={
+          defaultValue
+            ? {
+                table: defaultValue.mainTable,
+                column: defaultValue.joinDefinition.mainTableColumn,
+              }
+            : void 0
+        }
       ></JoinColumnsSelector>
       <Equal className="h-4 w-4 text-violet-50" />
       <JoinColumnsSelector
         model={model}
         onSelectColumn={(col, table) => set(undefined, undefined, col, table)}
+        defaultValue={
+          defaultValue
+            ? {
+                table: defaultValue.joinDefinition.joinTable,
+                column: defaultValue.joinDefinition.joinColumn,
+              }
+            : void 0
+        }
       ></JoinColumnsSelector>
     </div>
   );

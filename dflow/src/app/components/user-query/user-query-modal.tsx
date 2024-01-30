@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 import { useState } from "react";
 import { DataModel } from "../../model/data-model";
 import { UserQueryBuilder } from "../../model/user-query";
@@ -69,7 +69,6 @@ export function UserQueryModal({
           <Visualization
             queryBuilder={queryBuilder}
             onChartType={(ct: ChartType) => {
-              console.log(ct);
               setChartType(ct);
             }}
           ></Visualization>
