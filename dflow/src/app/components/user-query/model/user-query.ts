@@ -1,7 +1,7 @@
 'use client'
 import { v4 } from "uuid";
-import { AggregationModulesState, JoinModulesState, UserQueryState } from "../components/user-query/services/query-from-builder";
-import { Column, DataModel, Table } from "./data-model";
+import { AggregationModulesState, JoinModulesState, UserQueryState } from "../services/query-from-builder";
+import { Column, DataModel, Table } from "../../../model/data-model";
 
 export type AggregationValue = null | "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct"
 
@@ -93,13 +93,35 @@ export class UserQueryBuilder {
 
     private tables: Map<number, QueryColumn[]> = new Map();
     private joins: Map<string, JoinDefinition> = new Map();
+    private datasource_id: string;
+    private model_id: string;
+
+    public fromQueryDto(query: UserQuery["query"]) {
+        for (const col of query.columns){
+            let node = this.tables.get(col.table_id);
+            if(node){
+                node.push(col);
+            }else{
+                this.tables.set(col.table_id, [col]);
+            }
+        }
+        for (const join of query.joins){
+            this.joins.set(v4(), {
+                main_table_id: join.main_table_id,
+                main_field_id: join.main_field_id,
+                join_table_id: join.join_table_id,
+                join_field_id: join.join_field_id,
+            })
+        }
+    }
 
 
     constructor(
         private model: DataModel,
-        private datasource_id: string,
-        private model_id: string,
-    ) { }
+    ) {
+        this.datasource_id = model.datasource_id;
+        this.model_id = model.id;
+    }
 
     public getModel() {
         return this.model;
@@ -129,7 +151,7 @@ export class UserQueryBuilder {
     }
 
     public newInstance(): UserQueryBuilder {
-        const newInstance = new UserQueryBuilder(this.model, this.datasource_id, this.model_id);
+        const newInstance = new UserQueryBuilder(this.model);
         newInstance.tables = this.cloneMap(this.tables);
         newInstance.joins = this.cloneMap(this.joins);
         return newInstance;
@@ -279,7 +301,7 @@ export class UserQueryBuilder {
         const aggregationModules: AggregationModulesState[] = [];
         this.tables.forEach((columns, key) => {
             columns.forEach(col => {
-                if(col.aggregation !== null){
+                if (col.aggregation !== null) {
                     aggregationModules.push(
                         {
                             id: v4(),

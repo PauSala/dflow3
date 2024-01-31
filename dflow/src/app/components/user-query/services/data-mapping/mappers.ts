@@ -1,4 +1,4 @@
-import { UserQuery } from "../../../../model/user-query";
+import { UserQuery } from "../../model/user-query";
 import { QueryResponse } from "../query";
 
 export type DataMapper<T, U> = (i: T) => U;

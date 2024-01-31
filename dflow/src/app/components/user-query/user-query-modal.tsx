@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { DataModel } from "../../model/data-model";
-import { UserQueryBuilder } from "../../model/user-query";
+import { UserQueryBuilder } from "./model/user-query";
 import {
   Dialog,
   DialogClose,
@@ -28,14 +28,14 @@ export function UserQueryModal({
 }) {
   const [open, setOpen] = useState(false);
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
-    new UserQueryBuilder(model, "test", "test")
+    new UserQueryBuilder(model)
   );
   const [visualize, setVisualize] = useState(false);
   const [chartType, setChartType] = useState<ChartType>("table");
 
   const resetState = () => {
     setVisualize(false);
-    setQueryBuilder(new UserQueryBuilder(model, "test", "test"));
+    setQueryBuilder(new UserQueryBuilder(model));
   };
 
   const onDone = () => {
@@ -48,7 +48,7 @@ export function UserQueryModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" className="h-7 rounded">
-          <Plus className="mr-2 h-3 w-3" /> Add panel
+          <Plus className="mr-2 h-4 w-4" /> Add panel
         </Button>
       </DialogTrigger>
       <DialogContent className="min-w-[60rem] max-h-[90vh] overflow-auto">

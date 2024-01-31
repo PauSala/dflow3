@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { UserQueryBuilder } from "../../../model/user-query";
+import { UserQueryBuilder } from "../model/user-query";
 import ChartSelector from "../selectors/charts/chart-selector";
 import { ChartType, chartValidatorProvider } from "../../visualizations/types";
 import { ChartRenderer } from "../../visualizations/chart-renderer";
-import { QueryResponse, query } from "../services/query";
+import { QueryResponse, postQuery } from "../services/query";
 
 export type DrawableChartsState = {
   [T in ChartType]: { enabled: boolean; name: T };
@@ -51,7 +51,7 @@ export default function Visualization({
       };
     });
     const getData = async () => {
-      let data = await query(userQuery);
+      let data = await postQuery(userQuery);
       setData(data);
     };
     getData();

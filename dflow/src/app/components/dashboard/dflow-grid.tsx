@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import GridLayout, { Layout } from "react-grid-layout";
 import { PanelWraper } from "./dashboard";
 import Panel from "./panel/panel";
-import { UserQueryBuilder } from "../../model/user-query";
+import { UserQueryBuilder } from "../user-query/model/user-query";
 import { ChartType } from "../visualizations/types";
 
 const panelStyle = {

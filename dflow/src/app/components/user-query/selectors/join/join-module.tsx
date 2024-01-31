@@ -5,7 +5,7 @@ import { ColumnSelector } from "../columns/column-selector";
 import { TableSelector } from "../tables/table-selector";
 import { useEffect, useState } from "react";
 import { Column, DataModel, Table } from "../../../../model/data-model";
-import { UserQueryBuilder } from "../../../../model/user-query";
+import { UserQueryBuilder } from "../../model/user-query";
 import { JoinColumnsModule } from "./join-columns-module";
 import { JoinModulesState } from "../../services/query-from-builder";
 

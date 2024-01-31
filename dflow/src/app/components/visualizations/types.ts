@@ -1,5 +1,5 @@
 'use-client'
-import { UserQuery } from "../../model/user-query";
+import { UserQuery } from "../user-query/model/user-query";
 import { QueryResponse } from "../user-query/services/query";
 import { BarChartValidator } from "./bar-chart/bar-chart-validator";
 import { LineChartValidator } from "./line-chart/line-chart-validator";

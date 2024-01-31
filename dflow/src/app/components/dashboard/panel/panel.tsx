@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { UserQueryBuilder } from "../../../model/user-query";
+import { UserQueryBuilder } from "../../user-query/model/user-query";
 import { ChartType } from "../../visualizations/types";
-import { QueryResponse, query } from "../../user-query/services/query";
+import { QueryResponse, postQuery } from "../../user-query/services/query";
 import { ChartRenderer } from "../../visualizations/chart-renderer";
 import PanelConfiguration from "./panel-configuration/panel-configuration";
 
 export type PanelContentType = {
-  type: "chart";
+  type: "Chart";
   chartType?: ChartType;
 };
 
@@ -40,8 +40,9 @@ export default function Panel({
 
   useEffect(() => {
     const userQuery = builder.build();
+    console.log(builder);
     const getData = async () => {
-      let data = await query(userQuery);
+      let data = await postQuery(userQuery);
       setData(data);
     };
     getData().then(() => setLoading(false));

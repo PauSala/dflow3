@@ -15,7 +15,7 @@ import {
   CommandList,
 } from "../../../../../components/ui/command";
 import { Column, Table } from "../../../../model/data-model";
-import { AggregationValue } from "../../../../model/user-query";
+import { AggregationValue } from "../../model/user-query";
 
 export function AggregationColumnSelector({
   columns,

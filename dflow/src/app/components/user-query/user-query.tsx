@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
-import { UserQueryBuilder } from "../../model/user-query";
+import { UserQueryBuilder } from "./model/user-query";
 import { Button } from "../../../components/ui/button";
 import { MainTableSelector } from "./selectors/tables/main-table-selector";
 import {
@@ -15,7 +15,7 @@ import { v4 } from "uuid";
 import { JoinModule } from "./selectors/join/join-module";
 import SummarizeModule from "./selectors/summarize/summarize-module";
 
-import { query } from "./services/query";
+import { postQuery } from "./services/query";
 import { PreviewTable } from "./preview-table";
 import { UserQueryState } from "./services/query-from-builder";
 
@@ -96,7 +96,7 @@ export function UserQuery({
 
   const onPreview = () => {
     const user_query = queryBuilder.build();
-    query(user_query)
+    postQuery(user_query)
       .then((res) => {
         setPreview({ columns: res.columns, data: res.data.slice(0, 4) });
         setShowPreview(true);

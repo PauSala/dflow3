@@ -4,7 +4,7 @@ import { ColumnSelector } from "../columns/column-selector";
 import { TableSelector } from "./table-selector";
 import { useEffect, useState } from "react";
 import { Column, DataModel, Table } from "../../../../model/data-model";
-import { UserQueryBuilder } from "../../../../model/user-query";
+import { UserQueryBuilder } from "../../model/user-query";
 import { UserQueryState } from "../../services/query-from-builder";
 
 export function MainTableSelector({

@@ -14,7 +14,7 @@ import {
   CommandItem,
   CommandList,
 } from "../../../../../components/ui/command";
-import { AggregationValue } from "../../../../model/user-query";
+import { AggregationValue } from "../../model/user-query";
 
 export type AggregationT = {
   value: "Sum" | "Min" | "Max" | "Avg" | "Count" | "CountDistinct";

@@ -1,7 +1,7 @@
 'use client'
 
 import { Column, Table } from "../../../model/data-model"
-import { AggregationValue, UserQueryBuilder } from "../../../model/user-query";
+import { AggregationValue } from "../model/user-query";
 
 export interface JoinModulesState {
     id: string;

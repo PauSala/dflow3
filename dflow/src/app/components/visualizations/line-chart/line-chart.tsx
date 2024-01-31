@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { UserQuery } from "../../../model/user-query";
+import { UserQuery } from "../../user-query/model/user-query";
 import { QueryResponse } from "../../user-query/services/query";
 import { LineChartData, lineChartDataMapper } from "./line-chart-datamapper";
 import { queryToGraphicable } from "../../user-query/services/data-mapping/mappers";

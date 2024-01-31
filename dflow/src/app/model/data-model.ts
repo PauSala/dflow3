@@ -1,4 +1,4 @@
-import { TypeAlias } from "./user-query";
+import { TypeAlias } from "../components/user-query/model/user-query";
 
 export interface Column {
     column_id: number;

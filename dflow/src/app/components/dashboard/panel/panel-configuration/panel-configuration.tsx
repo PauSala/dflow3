@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftCircle, Eye, MoreVertical, Plus } from "lucide-react";
-import { UserQueryBuilder } from "../../../../model/user-query";
+import { UserQueryBuilder } from "../../../user-query/model/user-query";
 import { ChartType } from "../../../visualizations/types";
 import { Separator } from "../../../../../components/ui/separator";
 import { UserQuery } from "../../../user-query/user-query";

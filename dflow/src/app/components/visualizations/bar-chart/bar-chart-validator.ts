@@ -1,5 +1,5 @@
 'use-client'
-import { UserQuery } from "../../../model/user-query";
+import { UserQuery } from "../../user-query/model/user-query";
 import { numericalFieldsFromUserQuery, categorycalFieldsFromUserQuery } from "../../user-query/services/data-mapping/mappers";
 import { ChartValidator } from "../types";
 

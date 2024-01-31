@@ -7,7 +7,7 @@ import { Button } from "../../../../../components/ui/button";
 import {
   AggregationValue,
   UserQueryBuilder,
-} from "../../../../model/user-query";
+} from "../../model/user-query";
 import { AggregationModulesState } from "../../services/query-from-builder";
 
 export default function SummarizeModule({
