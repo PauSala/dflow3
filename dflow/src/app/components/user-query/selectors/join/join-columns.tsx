@@ -75,7 +75,7 @@ export function JoinColumnsSelector({
             "Pick a column"}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-56 max-h-80 overflow-y-auto">
         <DropdownMenuLabel>Join Tables</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -86,7 +86,7 @@ export function JoinColumnsSelector({
                 <span>{table.display_name}</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent>
+                <DropdownMenuSubContent className="w-56 max-h-80 overflow-y-auto">
                   {Object.values(table.columns).map((col) => (
                     <DropdownMenuItem
                       key={col.column_id}

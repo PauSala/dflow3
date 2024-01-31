@@ -98,6 +98,29 @@ impl SqliteConnection {
         Ok(())
     }
 
+    fn table_panels(&self, cn: &Connection) -> Result<()> {
+        cn.execute(
+            "CREATE TABLE IF NOT EXISTS panels (
+                panel_id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                model_id TEXT NOT NULL,
+                panel JSON
+            );", [])?;
+        Ok(())
+    }
+
+    fn table_dashboards(&self, cn: &Connection) -> Result<()> {
+        cn.execute(
+            "CREATE TABLE IF NOT EXISTS dashboards (
+                id TEXT NOT NULL PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                model_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                config JSON
+            );", [])?;
+        Ok(())
+    }
+
     pub fn create_db_if_not_exists(&self) -> Result<()> {
         let cn = self.connection()?;
         self.table_datasources(&cn)?;
@@ -106,6 +129,8 @@ impl SqliteConnection {
         self.table_tables(&cn)?;
         self.table_columns(&cn)?;
         self.table_relations(&cn)?;
+        self.table_panels(&cn)?;
+        self.table_dashboards(&cn)?;
         Ok(())
     }
 }

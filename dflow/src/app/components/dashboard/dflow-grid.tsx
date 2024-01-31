@@ -13,7 +13,7 @@ const panelStyle = {
   backgroundColor: "white",
 };
 
-const cols = 24;
+const cols = 48;
 const width = 1800;
 const rowHeight = 25;
 const margin = 6; //[6, 6]

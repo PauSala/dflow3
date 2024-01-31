@@ -11,14 +11,11 @@ pub struct ModelGetter<'a> {
     pub db: &'a mut Connection<Db>,
 }
 
-impl<'a> ModelGetter<'a>{
+
+impl<'a> ModelGetter<'a> {
     pub(crate) fn new(db: &'a mut Connection<Db>) -> Self {
         ModelGetter { db }
     }
-}
-
-
-impl<'a> ModelGetter<'a> {
     pub async fn retrieve(&mut self, model_id: &str) -> Result<Model> {
         let model = self.get_model_by_id(model_id).await?;
         if let Some(mut model) = model {

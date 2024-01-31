@@ -40,7 +40,6 @@ export default function Panel({
 
   useEffect(() => {
     const userQuery = builder.build();
-    console.log(builder);
     const getData = async () => {
       let data = await postQuery(userQuery);
       setData(data);

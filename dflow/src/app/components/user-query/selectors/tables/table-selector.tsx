@@ -31,7 +31,7 @@ export function TableSelector({
   const tables = Object.values(tableMap);
   useEffect(() => {
     if (defaultValue) {
-      setValue(defaultValue);
+      setValue(defaultValue.toLowerCase());
     }
   }, [defaultValue]);
 

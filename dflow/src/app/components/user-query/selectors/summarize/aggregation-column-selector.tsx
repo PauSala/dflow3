@@ -31,7 +31,7 @@ export function AggregationColumnSelector({
 
   useEffect(()=> {
     if(defaultValue){
-      setValue(defaultValue);
+      setValue(defaultValue.toLowerCase());
     }
   }, [defaultValue]);
 

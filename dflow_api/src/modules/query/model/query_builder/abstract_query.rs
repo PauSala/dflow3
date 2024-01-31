@@ -138,3 +138,10 @@ impl AbstractQuery<'_> {
         self.columns.clone()
     }
 }
+
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+pub struct AbstractQueryDto {
+    pub columns: Vec<QueryColumn>,
+    pub filters: Vec<QueryFilter>,
+    pub joins: Vec<JoinDefinition>
+}

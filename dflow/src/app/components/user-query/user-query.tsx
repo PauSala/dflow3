@@ -34,7 +34,7 @@ export function UserQuery({
   const [showPreview, setShowPreview] = useState(false);
   const [userQueryState, setUserQueryState] = useState<
     UserQueryState | undefined
-  >(undefined);
+  >();
 
   useEffect(() => {
     const state = queryBuilder.userQueryState();
