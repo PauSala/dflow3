@@ -1,7 +1,7 @@
 use sql_query_builder::Select;
 
 use crate::modules::{
-    dmodel::model::model::Model,
+    dmodel::model::model::{Model, TypeAlias},
     query::model::query_builder::abstract_query::{
         AbstractQuery, Aggregation, FilterValue, Format, Operator, QueryColumn, QueryFilter,
     },
@@ -17,8 +17,7 @@ pub struct PostgresDialect {
 impl PostgresDialect {}
 
 impl SqlBuilderDialect for PostgresDialect {
-    //TODO: makes sense to have some count(format(date))?
-    fn select_date(&self, c: &QueryColumn) -> String {
+    fn date_format(&self, c: &QueryColumn) -> String {
         let format;
         match c.format {
             Some(Format::Year) => format = String::from("'YYYY'"),
@@ -32,6 +31,11 @@ impl SqlBuilderDialect for PostgresDialect {
             Some(Format::WeekDay) => format = String::from("'ID'"),
             None => format = String::from("'YYYY-MM-DD'"),
         }
+        format
+    }
+    //TODO: makes sense to have some count(format(date))?
+    fn select_date(&self, c: &QueryColumn) -> String {
+        let format = self.date_format(c);
         format!(
             "to_char(\"{}\".\"{}\".\"{}\", {}) as \"{}\"",
             self.schema, c.table_name, c.column_name, format, c.column_name
@@ -82,7 +86,6 @@ impl SqlBuilderDialect for PostgresDialect {
         )
     }
 
-
     fn from_clause(&self, c: &QueryColumn, s: &Select) -> Select {
         s.clone().from(&format!("\"{}\"", c.table_name))
     }
@@ -95,10 +98,21 @@ impl SqlBuilderDialect for PostgresDialect {
             .collect::<Vec<_>>()
             .iter()
         {
-            select = select.group_by(&format!(
-                "\"{}\".\"{}\".\"{}\"",
-                self.schema, col.table_name, col.column_name
-            ));
+            match col.data_type {
+                TypeAlias::Date => {
+                    let format = self.date_format(col);
+                    select = select.group_by(&format!(
+                        "to_char(\"{}\".\"{}\".\"{}\", {})",
+                        self.schema, col.table_name, col.column_name, format
+                    ))
+                }
+                _ => {
+                    select = select.group_by(&format!(
+                        "\"{}\".\"{}\".\"{}\"",
+                        self.schema, col.table_name, col.column_name
+                    ));
+                }
+            }
         }
         select
     }

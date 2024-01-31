@@ -17,6 +17,7 @@ pub trait SqlBuilderDialect {
     fn order_by(&self, select: Select, query: &AbstractQuery) -> Select;
     fn univalue_filter(&self, f: &QueryFilter, v: &FilterValue) -> String;
     fn multivalue_filter(&self, f: &QueryFilter, v: &Vec<FilterValue>) -> String;
+    fn date_format(&self, c: &QueryColumn) -> String;
 }
 
 pub struct SqlQueryBuilder<T: SqlBuilderDialect> {

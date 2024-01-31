@@ -1,5 +1,5 @@
 use crate::modules::{
-    dmodel::model::model::Model,
+    dmodel::model::model::{Model, TypeAlias},
     query::model::query_builder::abstract_query::{
         AbstractQuery, Aggregation, FilterValue, Format, Operator, QueryColumn, QueryFilter,
     },
@@ -14,7 +14,8 @@ pub struct MssqlDialect {
 
 impl SqlBuilderDialect for MssqlDialect {
     //TODO: makes sense to have some count(format(date))?
-    fn select_date(&self, c: &QueryColumn) -> String {
+
+    fn date_format(&self, c: &QueryColumn) -> String {
         let format;
         match c.format {
             Some(Format::Year) => format = String::from("'yyyy'"),
@@ -34,12 +35,17 @@ impl SqlBuilderDialect for MssqlDialect {
                 )
                 .to_string();
             }
-            Some(Format::Day) => format = String::from(""),
-            Some(Format::DayHour) => format = String::from("'yyyy-MM-dd'"),
-            Some(Format::DayHourMinute) => format = String::from("'yyyy-MM-dd HH'"),
-            Some(Format::Timestamp) => format = String::from("'yyyy-MM-dd HH:mm'"),
+            Some(Format::Day) => format = String::from("'yyyy-MM-dd'"),
+            Some(Format::DayHour) => format = String::from("'yyyy-MM-dd HH"),
+            Some(Format::DayHourMinute) => format = String::from("'yyyy-MM-dd HH:mm'"),
+            Some(Format::Timestamp) => format = String::from("'yyyy-MM-dd HH:mm:ss"),
             None => format = String::from("'yyyy-MM-dd HH:mm:ss'"),
         }
+        format
+    }
+
+    fn select_date(&self, c: &QueryColumn) -> String {
+        let format = self.date_format(c);
         format!(
             "FORMAT(CAST(\"{}\".\"{}\".\"{}\" AS DATE), {}) as \"{}\"",
             self.schema, c.table_name, c.column_name, format, c.column_name
@@ -110,10 +116,23 @@ impl SqlBuilderDialect for MssqlDialect {
             .collect::<Vec<_>>()
             .iter()
         {
-            select = select.group_by(&format!(
-                "\"{}\".\"{}\".\"{}\"",
-                self.schema, col.table_name, col.column_name
-            ));
+            match col.data_type {
+                TypeAlias::Date => {
+                    select = select.group_by(&format!(
+                        "FORMAT(CAST(\"{}\".\"{}\".\"{}\" AS DATE), {})",
+                        self.schema,
+                        col.table_name,
+                        col.column_name,
+                        &self.date_format(&col),
+                    ))
+                }
+                _ => {
+                    select = select.group_by(&format!(
+                        "\"{}\".\"{}\".\"{}\"",
+                        self.schema, col.table_name, col.column_name
+                    ));
+                }
+            }
         }
         select
     }
