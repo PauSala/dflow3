@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -7,10 +7,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftCircle, Eye, MoreVertical, Plus } from "lucide-react";
+import { ArrowLeftCircle, Eye, MoreVertical, Pencil, Plus } from "lucide-react";
 import { UserQueryBuilder } from "../../../user-query/model/user-query";
 import { VisualizationType } from "../../../visualizations/types";
 import { Separator } from "../../../../../components/ui/separator";
@@ -19,10 +18,14 @@ import Visualization from "../../../user-query/visualization/visualization";
 
 export default function PanelConfiguration({
   builder,
-  onConfirm
+  onConfirm,
+  onClose,
+  openFromOutside,
 }: {
   builder: UserQueryBuilder;
-  onConfirm: (builder: UserQueryBuilder, chartType: VisualizationType) => void
+  onConfirm: (builder: UserQueryBuilder, chartType: VisualizationType) => void;
+  onClose: () => void;
+  openFromOutside: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [visualize, setVisualize] = useState(false);
@@ -36,28 +39,28 @@ export default function PanelConfiguration({
     setQueryBuilder(builder.newInstance());
   }, [builder]);
 
+  useEffect(() => {
+    if (openFromOutside) {
+      setOpen(true);
+    }
+  }, [openFromOutside]);
+
   const resetState = () => {
-    setQueryBuilder(builder.newInstance())
+    onClose();
+    setQueryBuilder(builder.newInstance());
     setVisualize(false);
   };
 
   const onDone = () => {
     setOpen(false);
-    if(queryBuilder){
+    if (queryBuilder) {
       onConfirm(queryBuilder, chartType);
     }
     resetState();
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className="h-7 rounded cancelDraggEvent"
-        >
-          <MoreVertical className="w-4 h-4 text-zinc-600" />
-        </Button>
-      </DialogTrigger>
+
       <DialogContent className="min-w-[60rem] max-h-[90vh] overflow-auto cancelDraggEvent">
         <DialogHeader>
           <DialogTitle className="text-slate-700">

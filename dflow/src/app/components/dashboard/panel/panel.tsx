@@ -5,6 +5,7 @@ import { VisualizationType } from "../../visualizations/types";
 import { QueryResponse, postQuery } from "../../user-query/services/query";
 import { VisualizationRenderer } from "../../visualizations/chart-renderer";
 import PanelConfiguration from "./panel-configuration/panel-configuration";
+import PanelMenu from "./panel-menu";
 
 export type PanelContentType = {
   type: "Chart";
@@ -19,7 +20,12 @@ export interface PanelProps {
   width: number;
   height: number;
   resizing: boolean;
-  onContentChange:  (builder: UserQueryBuilder, chartType: VisualizationType, panelId: string) => void
+  onContentChange: (
+    builder: UserQueryBuilder,
+    chartType: VisualizationType,
+    panelId: string
+  ) => void;
+  onDelete: (panelId: string) => void;
 }
 
 export default function Panel({
@@ -30,13 +36,16 @@ export default function Panel({
   width,
   height,
   resizing,
-  onContentChange
+  onContentChange,
+  onDelete,
 }: PanelProps) {
   const style = { width: `${width}px`, height: `${height}px` };
   const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
   const [loading, setLoading] = useState(true);
+  const [openQueryConfig, setOpenQueryConfig] = useState(false);
 
-  const onChange = (builder: UserQueryBuilder, chartType: VisualizationType) => onContentChange(builder, chartType, id); 
+  const onChange = (builder: UserQueryBuilder, chartType: VisualizationType) =>
+    onContentChange(builder, chartType, id);
 
   useEffect(() => {
     const userQuery = builder.build();
@@ -48,14 +57,27 @@ export default function Panel({
   }, [builder]);
 
   return (
-    <div style={style} className="flex flex-col items-center">
+    <div style={style} className="flex flex-col items-center .cancelDraggEvent">
       <div className="flex flex-row justify-between items-center p-2 w-full">
         <p className="text-normal ml-4">{content.chartType}</p>
-        <PanelConfiguration builder={builder} onConfirm={onChange}></PanelConfiguration>
+        <PanelMenu
+          onOpenQueryConfig={() => setOpenQueryConfig(true)}
+          onDelete={() => onDelete(id)}
+        ></PanelMenu>
       </div>
+      {
+        <PanelConfiguration
+          builder={builder}
+          onConfirm={onChange}
+          openFromOutside={openQueryConfig}
+          onClose={() => setOpenQueryConfig(false)}
+        ></PanelConfiguration>
+      }
       {!loading && !resizing && (
         <VisualizationRenderer
-          visualizationProps={{ chartData: { data, userQuery: builder.build() } }}
+          visualizationProps={{
+            chartData: { data, userQuery: builder.build() },
+          }}
           chartType={content.chartType!}
         ></VisualizationRenderer>
       )}

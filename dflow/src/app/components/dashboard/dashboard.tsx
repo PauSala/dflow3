@@ -25,13 +25,19 @@ export default function Dashboard({ model }: { model: DataModel }) {
   const [panelWrappers, setPanelWrappers] = useState<PanelWraper[]>([]);
 
   useEffect(() => {
+    const addPanelFromServer = (panelDto: PanelDto) => {
+      const wrapper: PanelWraper = panelWrapperFromDto(panelDto, model);
+      setPanelWrappers((old) => {
+        return [...old.filter((e) => e.layout.i !== wrapper.layout.i), wrapper];
+      });
+    };
     getDashboardsByUser().then((data) => {
       let db = data[0];
       db.config.panels.forEach((panelId) => {
         getPanel(panelId).then((panel) => addPanelFromServer(panel));
       });
     });
-  }, []);
+  }, [model]);
 
   const handleResize = (layout: Layout[]) => {
     setPanelWrappers((old) => {
@@ -43,17 +49,19 @@ export default function Dashboard({ model }: { model: DataModel }) {
     });
   };
 
-  const addPanelFromServer = (panelDto: PanelDto) => {
-    const wrapper: PanelWraper = panelWrapperFromDto(panelDto, model);
-    setPanelWrappers((old) => {
-      return [...old.filter((e) => e.layout.i !== wrapper.layout.i), wrapper];
-    });
-  };
-
-  const addPanelWrapper = (builder: UserQueryBuilder, chartType: VisualizationType) => {
+  const addPanelWrapper = (
+    builder: UserQueryBuilder,
+    chartType: VisualizationType
+  ) => {
     const newWrapper = panelWrapperFactory(builder, chartType);
     setPanelWrappers((old) => {
       return [...old, newWrapper];
+    });
+  };
+
+  const onDeletePanel = (panelId: string) => {
+    setPanelWrappers((old) => {
+      return [...old.filter((o) => o.props.id !== panelId)];
     });
   };
 
@@ -98,6 +106,7 @@ export default function Dashboard({ model }: { model: DataModel }) {
           wrappers={panelWrappers}
           handleResize={handleResize}
           onContentChange={onPanelContentChange}
+          onDelete={onDeletePanel}
         ></DflowGrid>
       </div>
     </div>

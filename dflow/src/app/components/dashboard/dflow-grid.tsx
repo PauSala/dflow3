@@ -25,11 +25,13 @@ export const heightInPixels = (heightUnits: number) =>
 export default function DflowGrid({
   wrappers,
   handleResize,
-  onContentChange
+  onContentChange,
+  onDelete
 }: {
   wrappers: PanelWraper[];
   handleResize: (layout: Layout[]) => void;
-  onContentChange: (builder: UserQueryBuilder, chartType: VisualizationType, panelid: string) => void
+  onContentChange: (builder: UserQueryBuilder, chartType: VisualizationType, panelid: string) => void;
+  onDelete: (panelId: string) => void;
 }) {
   const [resizing, setResizing] = useState(false);
 
@@ -63,6 +65,7 @@ export default function DflowGrid({
                 width={widthInPixels(panel.layout.w)}
                 resizing={resizing}
                 onContentChange={onContentChange}
+                onDelete={onDelete}
               ></Panel>
             }
           </div>
