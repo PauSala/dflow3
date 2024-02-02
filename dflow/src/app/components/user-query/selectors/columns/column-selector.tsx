@@ -41,7 +41,7 @@ export function ColumnSelector({
 
   useEffect(() => {
     setSelection(defaultValue  || []);
-  }, [columnMap]);
+  }, [defaultValue]);
 
   const onSelect = (currentValue: string) => {
     let found = columns.find(

@@ -83,7 +83,7 @@ export function JoinColumnsSelector({
             <DropdownMenuSub key={table.table_id}>
               <DropdownMenuSubTrigger>
                 <Table2 className="mr-2 h-4 w-4" />
-                <span>{table.display_name}</span>
+                <span className="w-[8rem] whitespace-nowrap text-ellipsis overflow-hidden">{table.display_name}</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent className="w-56 max-h-80 overflow-y-auto">
@@ -93,7 +93,7 @@ export function JoinColumnsSelector({
                       onClick={() => onSelect(col, table)}
                     >
                       <ColumnIcon type={col.type_alias}></ColumnIcon>
-                      <span>{col.display_name}</span>
+                      <span className="w-[8rem] whitespace-nowrap text-ellipsis overflow-hidden">{col.display_name}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>

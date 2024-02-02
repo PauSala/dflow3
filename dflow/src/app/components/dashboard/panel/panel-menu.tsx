@@ -16,13 +16,13 @@ export default function PanelMenu({
   onDelete: () => void
 }) {
   return (
-    <DropdownMenu >
+    <DropdownMenu  >
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-7 rounded cancelDraggEvent">
           <MoreVertical className="w-4 h-4 text-zinc-600" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent side="bottom" align="start">
         <DropdownMenuItem>
           <Button
             variant="ghost"
