@@ -4,7 +4,7 @@ import axios from "axios"
 import { PanelWraper } from "../dashboard";
 import { PanelContentType } from "../panel/panel";
 import { UserQuery } from "../../user-query/model/user-query";
-import { ChartType } from "../../visualizations/types";
+import { VisualizationType } from "../../visualizations/types";
 
 export interface PanelDto {
     model_id: string,
@@ -23,7 +23,7 @@ export interface PanelDto {
             name: string,
             content_type: {
                 Chart: {
-                    chart_type: ChartType
+                    chart_type: VisualizationType
                 }
             }
         },

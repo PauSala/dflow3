@@ -10,20 +10,20 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { UserQuery } from "../../user-query/model/user-query";
-import { QueryResponse } from "../../user-query/services/query";
 import { LineChartData, lineChartDataMapper } from "./line-chart-datamapper";
 import { queryToGraphicable } from "../../user-query/services/data-mapping/mappers";
-import { ChartProps } from "../types";
-import { ChartWrapperProps } from "../chart-renderer";
+import { VisualizationProps } from "../types";
+import { VisualizationWrapperProps } from "../chart-renderer";
+import { defaultColorPalette } from "../../../theme/chart-palette";
 
 export interface LineChartWrapperProps {
-  chartData: ChartProps;
+  chartData: VisualizationProps;
 }
 
-
-export function LineChartWrapper({ chartData }: ChartWrapperProps) {
-  const mapped: LineChartData = lineChartDataMapper(queryToGraphicable({q: chartData.userQuery, r: chartData.data}));
+export function LineChartWrapper({ chartData }: VisualizationWrapperProps) {
+  const mapped: LineChartData = lineChartDataMapper(
+    queryToGraphicable({ q: chartData.userQuery, r: chartData.data })
+  );
   return (
     <ResponsiveContainer width="95%" height="90%">
       <LineChart
@@ -38,16 +38,21 @@ export function LineChartWrapper({ chartData }: ChartWrapperProps) {
         }}
       >
         <CartesianGrid horizontal={true} vertical={false} />
-        <XAxis dataKey={mapped.categoricalField} tick={{ fontSize: "0.7em",  }}  tickLine={false} axisLine={false} />
-        <YAxis tick={{ fontSize: "0.7em" }} axisLine={false}  tickLine={false} />
+        <XAxis
+          dataKey={mapped.categoricalField}
+          tick={{ fontSize: "0.7em" }}
+          tickLine={false}
+          axisLine={false}
+        />
+        <YAxis tick={{ fontSize: "0.7em" }} axisLine={false} tickLine={false} />
         <Tooltip />
         <Legend />
-        {mapped.numericalFields.map((col) => (
+        {mapped.numericalFields.map((col, i) => (
           <Line
             key={col}
             type="monotone"
             dataKey={col}
-            stroke="#8884d8"
+            stroke={defaultColorPalette[i]}
             strokeWidth={2}
             activeDot={{ r: 3 }}
             dot={false}

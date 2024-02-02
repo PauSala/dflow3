@@ -1,8 +1,8 @@
 import { UserQuery } from "../../user-query/model/user-query";
 import { numericalFieldsFromUserQuery, categorycalFieldsFromUserQuery } from "../../user-query/services/data-mapping/mappers";
-import { ChartValidator } from "../types";
+import { VisualizationValidator } from "../types";
 
-export const PieChartValidator: ChartValidator = (data: UserQuery) => {
+export const PieChartValidator: VisualizationValidator = (data: UserQuery) => {
     let isValid = true;
     let numericFields = numericalFieldsFromUserQuery(data);
     let categoricalFields = categorycalFieldsFromUserQuery(data);

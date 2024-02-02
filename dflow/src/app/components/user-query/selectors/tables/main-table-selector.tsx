@@ -47,6 +47,7 @@ export function MainTableSelector({
         tableMap={model.tables}
         onSelect={onSelectTable}
         defaultValue={defaultValue?.mainTable?.name}
+        disabled={false}
       ></TableSelector>
       {selectedTable && (
         <ColumnSelector

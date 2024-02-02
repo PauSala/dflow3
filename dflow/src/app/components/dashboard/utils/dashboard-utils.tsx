@@ -1,14 +1,14 @@
 import { v4 } from "uuid";
 import { DataModel } from "../../../model/data-model";
 import { UserQueryBuilder } from "../../user-query/model/user-query";
-import { ChartType } from "../../visualizations/types";
+import { VisualizationType } from "../../visualizations/types";
 import { PanelWraper } from "../dashboard";
 import { widthInPixels, heightInPixels } from "../dflow-grid";
 import { PanelDto } from "../services/post-panel";
 
 export function panelWrapperFactory(
     builder: UserQueryBuilder,
-    chartType: ChartType
+    chartType: VisualizationType
   ): PanelWraper {
     const id = v4();
     return {

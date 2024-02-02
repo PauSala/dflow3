@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { UserQueryBuilder } from "../model/user-query";
 import ChartSelector from "../selectors/charts/chart-selector";
-import { ChartType, chartValidatorProvider } from "../../visualizations/types";
-import { ChartRenderer } from "../../visualizations/chart-renderer";
+import { VisualizationType, visualizationValidatorProvider } from "../../visualizations/types";
+import { VisualizationRenderer } from "../../visualizations/chart-renderer";
 import { QueryResponse, postQuery } from "../services/query";
 
 export type DrawableChartsState = {
-  [T in ChartType]: { enabled: boolean; name: T };
+  [T in VisualizationType]: { enabled: boolean; name: T };
 };
 
 const defaultDrawableChartState: DrawableChartsState = {
@@ -22,30 +22,30 @@ export default function Visualization({
   onChartType,
 }: {
   queryBuilder: UserQueryBuilder;
-  onChartType: (ct: ChartType) => void;
+  onChartType: (ct: VisualizationType) => void;
 }) {
   const [validated, setValidated] = useState<DrawableChartsState>(
     defaultDrawableChartState
   );
-  const [chartType, setChartType] = useState<ChartType>("table");
+  const [chartType, setChartType] = useState<VisualizationType>("table");
   const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
 
   useEffect(() => {
     const userQuery = queryBuilder.build();
     setValidated(() => {
       return {
-        bar: { enabled: chartValidatorProvider("bar")(userQuery), name: "bar" },
+        bar: { enabled: visualizationValidatorProvider("bar")(userQuery), name: "bar" },
         hBar: {
-          enabled: chartValidatorProvider("hBar")(userQuery),
+          enabled: visualizationValidatorProvider("hBar")(userQuery),
           name: "hBar",
         },
         line: {
-          enabled: chartValidatorProvider("line")(userQuery),
+          enabled: visualizationValidatorProvider("line")(userQuery),
           name: "line",
         },
-        pie: { enabled: chartValidatorProvider("pie")(userQuery), name: "pie" },
+        pie: { enabled: visualizationValidatorProvider("pie")(userQuery), name: "pie" },
         table: {
-          enabled: chartValidatorProvider("table")(userQuery),
+          enabled: visualizationValidatorProvider("table")(userQuery),
           name: "table",
         },
       };
@@ -57,7 +57,7 @@ export default function Visualization({
     getData();
   }, [queryBuilder]);
 
-  const onChartChange = async (ct: ChartType) => {
+  const onChartChange = async (ct: VisualizationType) => {
     setChartType(ct);
     onChartType(ct);
   };
@@ -68,13 +68,13 @@ export default function Visualization({
         validated={validated}
         onChange={onChartChange}
       ></ChartSelector>
-      <div className="h-[50vh] flex items-center">
-        <ChartRenderer
+      <div className="h-[50vh] flex items-center justify-center">
+        <VisualizationRenderer
           chartType={chartType}
-          chartProps={{
+          visualizationProps={{
             chartData: { data, userQuery: queryBuilder.build() },
           }}
-        ></ChartRenderer>
+        ></VisualizationRenderer>
       </div>
     </div>
   );

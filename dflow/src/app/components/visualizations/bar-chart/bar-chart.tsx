@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { ChartProps } from "../types";
 import { queryToGraphicable } from "../../user-query/services/data-mapping/mappers";
 import { BarChartData, barChartDataMapper } from "./bar-chart-datamapper";
 import {
@@ -14,10 +13,11 @@ import {
   ReferenceLine,
   Bar,
 } from "recharts";
-import { ChartWrapperProps } from "../chart-renderer";
+import { VisualizationWrapperProps } from "../chart-renderer";
+import { defaultColorPalette } from "../../../theme/chart-palette";
 
 
-export default function BarChartWrapper({ chartData }: ChartWrapperProps) {
+export default function BarChartWrapper({ chartData }: VisualizationWrapperProps) {
   const mapped: BarChartData = barChartDataMapper(
     queryToGraphicable({ q: chartData.userQuery, r: chartData.data })
   );
@@ -47,8 +47,8 @@ export default function BarChartWrapper({ chartData }: ChartWrapperProps) {
 
         {/* Issue with this: https://github.com/recharts/recharts/issues/3615
           <ReferenceLine y={0} stroke="#000" /> */}
-        {mapped.numericalFields.map((col) => (
-          <Bar key={col} type="monotone" dataKey={col} fill="#8884d8" />
+        {mapped.numericalFields.map((col, i) => (
+          <Bar key={col} type="monotone" dataKey={col} fill={defaultColorPalette[i]} />
         ))}
       </BarChart>
     </ResponsiveContainer>

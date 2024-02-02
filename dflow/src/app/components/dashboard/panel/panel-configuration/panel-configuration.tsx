@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowLeftCircle, Eye, MoreVertical, Plus } from "lucide-react";
 import { UserQueryBuilder } from "../../../user-query/model/user-query";
-import { ChartType } from "../../../visualizations/types";
+import { VisualizationType } from "../../../visualizations/types";
 import { Separator } from "../../../../../components/ui/separator";
 import { UserQuery } from "../../../user-query/user-query";
 import Visualization from "../../../user-query/visualization/visualization";
@@ -22,11 +22,11 @@ export default function PanelConfiguration({
   onConfirm
 }: {
   builder: UserQueryBuilder;
-  onConfirm: (builder: UserQueryBuilder, chartType: ChartType) => void
+  onConfirm: (builder: UserQueryBuilder, chartType: VisualizationType) => void
 }) {
   const [open, setOpen] = useState(false);
   const [visualize, setVisualize] = useState(false);
-  const [chartType, setChartType] = useState<ChartType>("table");
+  const [chartType, setChartType] = useState<VisualizationType>("table");
 
   const model = builder.getModel();
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>();
@@ -77,7 +77,7 @@ export default function PanelConfiguration({
         {visualize && queryBuilder && (
           <Visualization
             queryBuilder={queryBuilder}
-            onChartType={(ct: ChartType) => {
+            onChartType={(ct: VisualizationType) => {
               setChartType(ct);
             }}
           ></Visualization>

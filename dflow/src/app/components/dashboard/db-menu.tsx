@@ -15,7 +15,7 @@ import {
 import { DataModel } from "../../model/data-model";
 import { UserQueryBuilder } from "../user-query/model/user-query";
 import { UserQueryModal } from "../user-query/user-query-modal";
-import { ChartType } from "../visualizations/types";
+import { VisualizationType } from "../visualizations/types";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 
@@ -25,7 +25,7 @@ export function DbMenu({
   onSave,
 }: {
   model: DataModel;
-  onAddPanel: (builder: UserQueryBuilder, chartType: ChartType) => void;
+  onAddPanel: (builder: UserQueryBuilder, chartType: VisualizationType) => void;
   onSave: () => void;
 }) {
   return (

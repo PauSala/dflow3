@@ -48,7 +48,6 @@ export function JoinModule({
     if (selectedTable) {
       builder.deleteTable(selectedTable.table_id);
     }
-    builder.removeJoin(id);
     onDelete(id);
   };
 
@@ -79,6 +78,7 @@ export function JoinModule({
           tableMap={tables}
           onSelect={onSelectTable}
           defaultValue={defaultValue?.mainTable.name}
+          disabled={!!defaultValue}
         ></TableSelector>
         {selectedTable && (
           <ColumnSelector

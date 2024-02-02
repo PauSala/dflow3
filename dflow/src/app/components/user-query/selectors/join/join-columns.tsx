@@ -65,7 +65,7 @@ export function JoinColumnsSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="p-[1.8em]">
+        <Button variant="outline" className="p-[1.8em]" disabled={!!defaultValue}>
           {(selection && (
             <Selection
               column={selection.column}

@@ -6,7 +6,7 @@ import { DataModel } from "../../model/data-model";
 import { UserQueryBuilder } from "../user-query/model/user-query";
 import { Layout } from "react-grid-layout";
 import { PanelProps } from "./panel/panel";
-import { ChartType } from "../visualizations/types";
+import { VisualizationType } from "../visualizations/types";
 import { PanelDto, postPanel } from "./services/post-panel";
 import { getPanel } from "./services/get-panels";
 import {
@@ -50,7 +50,7 @@ export default function Dashboard({ model }: { model: DataModel }) {
     });
   };
 
-  const addPanelWrapper = (builder: UserQueryBuilder, chartType: ChartType) => {
+  const addPanelWrapper = (builder: UserQueryBuilder, chartType: VisualizationType) => {
     const newWrapper = panelWrapperFactory(builder, chartType);
     setPanelWrappers((old) => {
       return [...old, newWrapper];
@@ -59,7 +59,7 @@ export default function Dashboard({ model }: { model: DataModel }) {
 
   const onPanelContentChange = (
     builder: UserQueryBuilder,
-    chartType: ChartType,
+    chartType: VisualizationType,
     panelId: string
   ) => {
     setPanelWrappers((old) => {

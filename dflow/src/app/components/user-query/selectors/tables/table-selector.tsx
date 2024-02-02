@@ -20,10 +20,12 @@ export function TableSelector({
   tableMap,
   onSelect,
   defaultValue,
+  disabled
 }: {
   tableMap: Record<string, Table>;
   onSelect: (table: Table) => void;
   defaultValue?: string;
+  disabled: boolean
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
@@ -43,6 +45,7 @@ export function TableSelector({
           role="combobox"
           aria-expanded={open}
           className="w-[18rem] justify-between"
+          disabled={disabled}
         >
           <ChevronsUpDown className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           <p className="w-[18rem] whitespace-nowrap text-ellipsis overflow-hidden">

@@ -1,19 +1,20 @@
 "use client";
 import React from "react";
-import { ChartProps, ChartType } from "./types";
+import { VisualizationProps, VisualizationType } from "./types";
 import BarChartWrapper from "./bar-chart/bar-chart";
 import { LineChartWrapper } from "./line-chart/line-chart";
+import { DFlowTable } from "./table/dflow-table";
 
-export interface ChartWrapperProps {
-  chartData: ChartProps;
+export interface VisualizationWrapperProps {
+  chartData: VisualizationProps;
 }
 
-export function ChartRenderer({
+export function VisualizationRenderer({
   chartType,
-  chartProps,
+  visualizationProps,
 }: {
-  chartType: ChartType;
-  chartProps: ChartWrapperProps;
+  chartType: VisualizationType;
+  visualizationProps: VisualizationWrapperProps;
 }) {
   let ChartComponent;
   switch (chartType) {
@@ -23,6 +24,9 @@ export function ChartRenderer({
     case "line":
       ChartComponent = LineChartWrapper;
       break;
+    case "table":
+      ChartComponent = DFlowTable;
+      break;
     default:
       ChartComponent = function Default() {
         return <div>Not implemented yet!</div>;
@@ -30,5 +34,5 @@ export function ChartRenderer({
   }
 
   // Render the determined component
-  return <ChartComponent chartData={chartProps.chartData} />;
+  return <ChartComponent chartData={visualizationProps.chartData} />;
 }

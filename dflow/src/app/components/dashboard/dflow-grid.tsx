@@ -4,7 +4,7 @@ import GridLayout, { Layout } from "react-grid-layout";
 import { PanelWraper } from "./dashboard";
 import Panel from "./panel/panel";
 import { UserQueryBuilder } from "../user-query/model/user-query";
-import { ChartType } from "../visualizations/types";
+import { VisualizationType } from "../visualizations/types";
 
 const panelStyle = {
   borderRadius: "6px",
@@ -29,12 +29,12 @@ export default function DflowGrid({
 }: {
   wrappers: PanelWraper[];
   handleResize: (layout: Layout[]) => void;
-  onContentChange: (builder: UserQueryBuilder, chartType: ChartType, panelid: string) => void
+  onContentChange: (builder: UserQueryBuilder, chartType: VisualizationType, panelid: string) => void
 }) {
   const [resizing, setResizing] = useState(false);
 
   return (
-    <div className="w-[1800px] min-h-[85vh] border rounded-lg bg-emerald-50 select-none">
+    <div className="w-[1800px] min-h-[85vh] border rounded-lg bg-slate-50 select-none">
       <GridLayout
         compactType={null}
         className="layout"

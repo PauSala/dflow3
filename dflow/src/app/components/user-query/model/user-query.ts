@@ -96,16 +96,23 @@ export class UserQueryBuilder {
     private datasource_id: string;
     private model_id: string;
 
+    constructor(
+        private model: DataModel,
+    ) {
+        this.datasource_id = model.datasource_id;
+        this.model_id = model.id;
+    }
+
     public fromQueryDto(query: UserQuery["query"]) {
-        for (const col of query.columns){
+        for (const col of query.columns) {
             let node = this.tables.get(col.table_id);
-            if(node){
+            if (node) {
                 node.push(col);
-            }else{
+            } else {
                 this.tables.set(col.table_id, [col]);
             }
         }
-        for (const join of query.joins){
+        for (const join of query.joins) {
             this.joins.set(v4(), {
                 main_table_id: join.main_table_id,
                 main_field_id: join.main_field_id,
@@ -115,39 +122,13 @@ export class UserQueryBuilder {
         }
     }
 
-
-    constructor(
-        private model: DataModel,
-    ) {
-        this.datasource_id = model.datasource_id;
-        this.model_id = model.id;
+    public reset(){
+        this.tables = new Map();
+        this.joins = new Map();
     }
 
     public getModel() {
         return this.model;
-    }
-
-    public getJoins() {
-        return this.joins;
-    }
-
-    public getAggregations() {
-        return []
-    }
-
-    private cloneMap<T extends NonShallowCopyableObject<T>>(map: Map<unknown, T[]> | Map<unknown, T>) {
-        let newMap = new Map();
-        if (typeof map)
-            map.forEach((value, key) => {
-                if (Array.isArray(value)) {
-                    let newA = value.map(v => ({ ...v }));
-                    newMap.set(key, newA);
-                }
-                else {
-                    newMap.set(key, { ...value })
-                }
-            });
-        return newMap;
     }
 
     public newInstance(): UserQueryBuilder {
@@ -167,19 +148,6 @@ export class UserQueryBuilder {
             node = cols;
             this.tables.set(table_id, node);
         }
-    }
-
-    public getMainTable() {
-        const mapIterator = this.tables.entries();
-        const firstElement: [number, QueryColumn[]] | undefined = mapIterator.next().value;
-        if (firstElement) {
-            return this.model.tables[firstElement[0]];
-        }
-        return firstElement
-    }
-
-    public getColumns(table_id: number) {
-        return this.tables.get(table_id);
     }
 
     public deleteTable(table_id: number) {
@@ -240,7 +208,7 @@ export class UserQueryBuilder {
     public removeAggregation(table_id: number, column_id: number) {
         const columns = this.tables.get(table_id);
         if (!columns) {
-            throw Error("Table not found");
+            return;
         }
         const column = columns.find(c => c.column_id === column_id);
         if (!column) {
@@ -249,34 +217,13 @@ export class UserQueryBuilder {
         column.aggregation = null;
     }
 
-    private buildColumn(column_id: number, table_id: number): QueryColumn {
-        let table = this.model.tables[table_id];
-        if (!table) {
-            throw Error("Table not found");
-        }
-        const column = table.columns[column_id];
-        if (!column) {
-            throw Error("Column not found");
-        }
-        return ({
-            table_id: table.table_id,
-            column_id: column.column_id,
-            table_name: table.name,
-            column_name: column.name,
-            aggregation: null,
-            format: null,
-            order: null,
-            data_type: column.type_alias
-        });
-    }
-
     public userQueryState(): UserQueryState | undefined {
         //Set main table info
         const mainTable = this.getMainTable();
         if (!mainTable) {
             return undefined
         }
-        const mainTableColumns = this.getColumns(mainTable.table_id)
+        const mainTableColumns = this.getTableColumns(mainTable.table_id)
             ?.map(c => mainTable.columns[c.column_id]) || [];
 
         //Set joins info
@@ -287,7 +234,7 @@ export class UserQueryBuilder {
                 id: key,
                 mainTable: mainTable,
                 mainTableColumns:
-                    this.getColumns(value.main_table_id)
+                    this.getTableColumns(value.main_table_id)
                         ?.map(c => mainTable.columns[c.column_id]) || [],
                 joinDefinition: {
                     mainTableColumn: mainTable.columns[value.main_field_id],
@@ -320,5 +267,54 @@ export class UserQueryBuilder {
             joinModules,
             aggregationModules: aggregationModules
         }
+    }
+
+    private getMainTable() {
+        const mapIterator = this.tables.entries();
+        const firstElement: [number, QueryColumn[]] | undefined = mapIterator.next().value;
+        if (firstElement) {
+            return this.model.tables[firstElement[0]];
+        }
+        return firstElement
+    }
+
+    private getTableColumns(table_id: number) {
+        return this.tables.get(table_id);
+    }
+
+    private buildColumn(column_id: number, table_id: number): QueryColumn {
+        let table = this.model.tables[table_id];
+        if (!table) {
+            throw Error("Table not found");
+        }
+        const column = table.columns[column_id];
+        if (!column) {
+            throw Error("Column not found");
+        }
+        return ({
+            table_id: table.table_id,
+            column_id: column.column_id,
+            table_name: table.name,
+            column_name: column.name,
+            aggregation: null,
+            format: null,
+            order: null,
+            data_type: column.type_alias
+        });
+    }
+
+    private cloneMap<T extends NonShallowCopyableObject<T>>(map: Map<unknown, T[]> | Map<unknown, T>) {
+        let newMap = new Map();
+        if (typeof map)
+            map.forEach((value, key) => {
+                if (Array.isArray(value)) {
+                    let newA = value.map(v => ({ ...v }));
+                    newMap.set(key, newA);
+                }
+                else {
+                    newMap.set(key, { ...value })
+                }
+            });
+        return newMap;
     }
 }

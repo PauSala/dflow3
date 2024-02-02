@@ -18,6 +18,7 @@ import SummarizeModule from "./selectors/summarize/summarize-module";
 import { postQuery } from "./services/query";
 import { PreviewTable } from "./preview-table";
 import { UserQueryState } from "./services/query-from-builder";
+import { ActionButton } from "./actions/action-button";
 
 export function UserQuery({
   model,
@@ -50,11 +51,12 @@ export function UserQuery({
   }>({ columns: [], data: [] });
 
   const resetQuery = () => {
-    setTimeout(() => {
-      setJoinModules([]);
-      setSummarizeModules([]);
-      setShowPreview(false);
-    });
+    setJoinModules([]);
+    setSummarizeModules([]);
+    queryBuilder.reset();
+    const state = queryBuilder.userQueryState();
+    setUserQueryState(state);
+    setShowPreview(false);
   };
 
   const onMainTableSelect = (table: Table) => {
@@ -81,6 +83,7 @@ export function UserQuery({
   };
 
   const deleteJoinModule = (id: string) => {
+    queryBuilder.removeJoin(id);
     setJoinModules((old) => {
       let newModules = old.filter((m) => m !== id);
       return newModules;
@@ -127,27 +130,11 @@ export function UserQuery({
             defaultValue={userQueryState?.joinModules.find((s) => s.id === id)}
           ></JoinModule>
         ))}
-
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          {
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => addJoinModule()}
-              >
-                <Blend className="h-4 w-4 text-violet-600" />
-              </Button>
-            </TooltipTrigger>
-          }
-          {
-            <TooltipContent>
-              <p>Join data</p>
-            </TooltipContent>
-          }
-        </Tooltip>
-      </TooltipProvider>
+      <ActionButton
+        className="h-4 w-4 text-violet-600"
+        label="Join data"
+        onClick={addJoinModule}
+      ></ActionButton>
       {mainTable &&
         summarizeModules.map((id) => (
           <SummarizeModule
@@ -161,26 +148,11 @@ export function UserQuery({
             )}
           ></SummarizeModule>
         ))}
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          {
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => addSummarizeModule()}
-              >
-                <Sigma className="h-4 w-4 text-amber-600" />
-              </Button>
-            </TooltipTrigger>
-          }
-          {
-            <TooltipContent>
-              <p>Summarize</p>
-            </TooltipContent>
-          }
-        </Tooltip>
-      </TooltipProvider>
+      <ActionButton
+        className="h-4 w-4 text-amber-600"
+        label="Summarize"
+        onClick={addSummarizeModule}
+      ></ActionButton>
       {showPreview && (
         <PreviewTable
           columns={preview.columns}

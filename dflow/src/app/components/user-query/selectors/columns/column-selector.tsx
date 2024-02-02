@@ -28,19 +28,19 @@ import ColumnIcon from "./column-icon";
 export function ColumnSelector({
   columnMap,
   onColumnSelect,
-  defaultValue
+  defaultValue,
 
 }: {
   columnMap: Record<string, Column>;
   onColumnSelect: (cols: Array<Column>) => void;
-  defaultValue?: Column[]
+  defaultValue?: Column[];
 }) {
   const [open, setOpen] = useState(false);
   const [selection, setSelection] = useState<Column[]>([]);
   const columns = Object.values(columnMap);
 
   useEffect(() => {
-    setSelection(defaultValue || []);
+    setSelection(defaultValue  || []);
   }, [columnMap]);
 
   const onSelect = (currentValue: string) => {

@@ -17,21 +17,21 @@ import { UserQuery } from "./user-query";
 import { ArrowLeftCircle, Eye, Plus } from "lucide-react";
 import Visualization from "./visualization/visualization";
 import { Separator } from "../../../components/ui/separator";
-import { ChartType } from "../visualizations/types";
+import { VisualizationType } from "../visualizations/types";
 
 export function UserQueryModal({
   model,
   onConfirm,
 }: {
   model: DataModel;
-  onConfirm: (builder: UserQueryBuilder, chartType: ChartType) => void;
+  onConfirm: (builder: UserQueryBuilder, chartType: VisualizationType) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [queryBuilder, setQueryBuilder] = useState<UserQueryBuilder>(
     new UserQueryBuilder(model)
   );
   const [visualize, setVisualize] = useState(false);
-  const [chartType, setChartType] = useState<ChartType>("table");
+  const [chartType, setChartType] = useState<VisualizationType>("table");
 
   const resetState = () => {
     setVisualize(false);
@@ -68,7 +68,7 @@ export function UserQueryModal({
         {visualize && (
           <Visualization
             queryBuilder={queryBuilder}
-            onChartType={(ct: ChartType) => {
+            onChartType={(ct: VisualizationType) => {
               setChartType(ct);
             }}
           ></Visualization>

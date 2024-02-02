@@ -29,7 +29,8 @@ export default function SummarizeModule({
     if(defaultValue){
       setSelection(defaultValue);
     }
-  }, [defaultValue])
+  }, [defaultValue]);
+
   return (
     <div className="flex justify-start  p-2 bg-amber-100 rounded">
       <div className="flex items-center gap-2">
