@@ -50,6 +50,7 @@ impl PostgresExecutor {
                         let v: Option<String> = row.get(col_index);
                         row_data.push(ColumnReturnDataType::Date(v));
                     }
+                    TypeAlias::Array(_) => {}
                 }
             }
             data.push(row_data);

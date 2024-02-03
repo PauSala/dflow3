@@ -1,4 +1,5 @@
 use dotenv_codegen::dotenv;
+use jsonwebtoken::Algorithm;
 use rocket_jwt::jwt;
 
 static SECRET_KEY: &'static str = dotenv!("SECRET_KEY");

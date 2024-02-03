@@ -59,6 +59,7 @@ impl MssqlExecutor {
                         let v: Option<&str> = row.get(col_index);
                         row_data.push(ColumnReturnDataType::Date(v.map(|value| value.into())));
                     }
+                    TypeAlias::Array(_) => {},
                 }
             }
             data.push(row_data);

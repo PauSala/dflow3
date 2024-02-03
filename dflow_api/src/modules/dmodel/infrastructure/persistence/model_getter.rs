@@ -69,7 +69,7 @@ impl<'a> ModelGetter<'a> {
 
         let query = "
         SELECT 
-        c.id, c.column_name, c.display_name, c.type, c.type_alias, c.table_id 
+        c.id, c.column_name, c.display_name, c.type, c.type_alias, c.table_id, c.is_array
           FROM columns c 
         INNER JOIN tables t on c.table_id = t.id 
         WHERE t.model_id = ?";
@@ -86,6 +86,7 @@ impl<'a> ModelGetter<'a> {
                         display_name: row.get(2),
                         type_alias: TypeAlias::from_string(&type_alias),
                         actual_type: row.get(3),
+                        is_array: row.get(4)
                     },
                     table_id,
                 )

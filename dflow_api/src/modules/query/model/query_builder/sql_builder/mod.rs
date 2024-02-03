@@ -41,6 +41,7 @@ where
                 TypeAlias::Text => content = self.dialect.select_text(&c),
                 TypeAlias::Date => content = self.dialect.select_date(&c),
                 TypeAlias::Bool => content = self.dialect.select_number(&c),
+                TypeAlias::Array(_) => panic!("No arrays in sql for now")
             }
             select = select.select(&content)
         }

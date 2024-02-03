@@ -22,16 +22,18 @@ pub enum TypeAlias {
     Bool,
     Text,
     Date,
+    Array(Box<TypeAlias>)
 }
 
 impl TypeAlias {
     pub fn to_string(&self) -> String {
         match self {
-            TypeAlias::Integer => "integer".to_string(),
-            TypeAlias::Float => "float".to_string(),
-            TypeAlias::Bool => "bool".to_string(),
-            TypeAlias::Text => "text".to_string(),
-            TypeAlias::Date => "date".to_string(),
+            TypeAlias::Integer => "integer".to_owned(),
+            TypeAlias::Float => "float".to_owned(),
+            TypeAlias::Bool => "bool".to_owned(),
+            TypeAlias::Text => "text".to_owned(),
+            TypeAlias::Date => "date".to_owned(),
+            TypeAlias::Array(_) => "array".to_owned(),
         }
     }
     pub fn from_string(value: &str) -> Self {
@@ -53,16 +55,18 @@ pub struct Column {
     pub display_name: String,
     pub type_alias: TypeAlias,
     pub actual_type: String,
+    pub is_array: bool
 }
 
 impl Column {
-    pub fn new(column_id: usize, name: &str, type_alias: TypeAlias, actual_type: &str) -> Self {
+    pub fn new(column_id: usize, name: &str, type_alias: TypeAlias, actual_type: &str, is_array: bool) -> Self {
         Column {
             column_id,
             name: name.to_string(),
             display_name: name.to_string(),
             type_alias,
             actual_type: actual_type.to_string(),
+            is_array
         }
     }
 }
@@ -150,10 +154,11 @@ impl Model {
         name: &str,
         type_alias: TypeAlias,
         actual_type: &str,
+        is_array: bool
     ) -> Result<&mut Self> {
         if let Some(table) = self.tables.get_mut(&table_id) {
             let id = table.column_count;
-            let column = Column::new(id, name, type_alias, actual_type);
+            let column = Column::new(id, name, type_alias, actual_type, is_array);
             table.columns.insert(column.column_id, column);
             table.column_count += 1;
             return Ok(self);
@@ -249,7 +254,7 @@ pub mod test {
         let table_id = 1;
         let column_name = "C1";
         model.add_table(table_name, table_id);
-        model.add_column(table_id, column_name, super::TypeAlias::Integer, "int4")?;
+        model.add_column(table_id, column_name, super::TypeAlias::Integer, "int4", false)?;
         let table = model
             .tables
             .get(&table_id)
@@ -265,7 +270,7 @@ pub mod test {
     #[test]
     fn should_error_on_add_column_if_table_does_not_exist() -> Result<()> {
         let mut model = Model::new("test", "test");
-        let err = model.add_column(0, "C1", super::TypeAlias::Integer, "int4");
+        let err = model.add_column(0, "C1", super::TypeAlias::Integer, "int4", false);
         assert!(err.is_err());
         Ok(())
     }
@@ -274,9 +279,9 @@ pub mod test {
     fn it_should_add_relations() -> Result<()> {
         let mut model = Model::new("test", "test");
         model.add_table("T1", 1).add_table("T2", 2);
-        model.add_column(1, "C1", super::TypeAlias::Integer, "int4")?;
-        model.add_column(2, "C1", super::TypeAlias::Integer, "int4")?;
-        model.add_column(2, "C2", super::TypeAlias::Integer, "int4")?;
+        model.add_column(1, "C1", super::TypeAlias::Integer, "int4", false)?;
+        model.add_column(2, "C1", super::TypeAlias::Integer, "int4", false)?;
+        model.add_column(2, "C2", super::TypeAlias::Integer, "int4", false)?;
         model.add_relation(1, 0, 2, 1)?;
         assert_eq!(model.relations.len(), 1);
         let table1 = model.tables.get(&1).expect("Table should exist");

@@ -75,6 +75,7 @@ impl SqliteConnection {
                 type_alias TEXT NOT NULL,
                 table_id INTEGER NOT NULL,
                 model_id TEXT NOT NULL,
+                is_array BOOLEAN,
                 FOREIGN KEY(table_id, model_id) REFERENCES tables(id, model_id)
              )",
             [],

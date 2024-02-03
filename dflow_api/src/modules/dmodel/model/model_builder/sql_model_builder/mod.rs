@@ -81,6 +81,7 @@ impl SqlModelBuilder {
                         &column.column_name,
                         self.normalize_type(&column.column_type, &column.auto_incremental),
                         &column.column_type,
+                        false
                     )?;
                     table_index += 1;
                 }
@@ -90,6 +91,7 @@ impl SqlModelBuilder {
                         &column.column_name,
                         self.normalize_type(&column.column_type, &column.auto_incremental),
                         &column.column_type,
+                        false
                     )?;
                 }
             }

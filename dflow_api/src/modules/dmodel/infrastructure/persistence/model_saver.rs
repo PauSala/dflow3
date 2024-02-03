@@ -58,8 +58,8 @@ impl<'a> ModelStorer<'a> {
             let column_type = column.type_alias.to_string();
             sqlx::query(
                 "INSERT INTO columns 
-                    (id, column_name, display_name, type, type_alias, table_id, model_id) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (id, column_name, display_name, type, type_alias, table_id, model_id, is_array) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ",
             )
             .bind(column.column_id as u32)
@@ -69,6 +69,7 @@ impl<'a> ModelStorer<'a> {
             .bind(column_type.clone())
             .bind(*table_id as u32)
             .bind(model_id)
+            .bind(column.is_array)
             .execute(&mut *tx)
             .await?;
         }

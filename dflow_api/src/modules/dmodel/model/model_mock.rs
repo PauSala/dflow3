@@ -27,7 +27,7 @@ pub fn model_mock(len: usize, model_id: &str) -> Result<Model> {
     for i in 0..len {
         for j in 0..3 {
             model
-                .add_column(i, &format!("{j}"), TypeAlias::Integer, "int4")
+                .add_column(i, &format!("{j}"), TypeAlias::Integer, "int4", false)
                 .expect("Should exist");
         }
     }
@@ -69,7 +69,7 @@ pub fn model_with_cycles() -> Result<Model> {
     for i in 0..4 {
         for j in 0..3 {
             model
-                .add_column(i, &format!("{j}"), TypeAlias::Integer, "int4")
+                .add_column(i, &format!("{j}"), TypeAlias::Integer, "int4", false)
                 .expect("Should exist");
         }
     }

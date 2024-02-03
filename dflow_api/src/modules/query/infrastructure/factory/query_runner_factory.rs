@@ -94,5 +94,6 @@ pub(crate) async fn query_runner_factory(
                 }
             }
         },
+        DatasourceConfiguration::MongoDb(_) => todo!(),
     };
 }

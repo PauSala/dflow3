@@ -4,7 +4,10 @@ use crate::{
             datasource_getter::DataSourceGetter, sql_config_getter::SqlConfigurationGetter,
         },
         model::{
-            configurations::configurations::{ConfigGetter, DatasourceConfiguration},
+            configurations::{
+                configurations::{ConfigGetter, DatasourceConfiguration},
+                mongodb_configuration::MongoDbConfiguration,
+            },
             datasource_repository::TDataSourceGetter,
             datasource_type::DataSourceType,
         },
@@ -35,7 +38,6 @@ pub(crate) async fn configuration_factory(
     datasource_id: &str,
     db: &mut Connection<Db>,
 ) -> Result<DatasourceConfiguration> {
-
     let mut datasource_getter = DataSourceGetter::new(db);
     let datasource = datasource_getter
         .get_datasource_by_id(datasource_id)
@@ -46,6 +48,11 @@ pub(crate) async fn configuration_factory(
 
     match datasource.datasource_type {
         DataSourceType::Sql(_) => config_retriever = SqlConfigurationGetter::new(db),
+        DataSourceType::MongoDb => return Ok(DatasourceConfiguration::MongoDb(MongoDbConfiguration {
+            datasource_id: "".to_owned(),
+            conn_string: "".to_owned(),
+            db_name: "".to_owned(),
+        })),
     }
 
     let model_configuration = config_retriever.retrieve(datasource_id).await.unwrap();
