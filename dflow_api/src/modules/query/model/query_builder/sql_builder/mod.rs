@@ -70,6 +70,7 @@ impl<T> TQueryBuilder for SqlQueryBuilder<T>
 where
     T: SqlBuilderDialect,
 {
+    type Output = String;
     fn build(&self, query: &AbstractQuery) -> String {
         //SELECT
         let mut select = Select::new();

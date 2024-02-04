@@ -41,22 +41,30 @@ impl QueryResult {
 }
 
 pub(crate) trait TQueryExecutor {
-    async fn run(&mut self, query: &str, abstract_query: &AbstractQuery) -> Result<QueryResult>;
+    type Input;
+    async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery) -> Result<QueryResult>;
 }
 
-pub(crate) enum QueryExecutor {
-    Pg(PostgresExecutor),
-    Mssql(MssqlExecutor)
+impl TQueryExecutor for PostgresExecutor {
+    type Input = String;
+    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+        let data: Vec<Vec<ColumnReturnDataType>> = self.execute(&query, abstract_query).await?;
+        let result = QueryResult {
+            columns: abstract_query
+                .columns
+                .iter()
+                .map(|c| c.column_name.clone())
+                .collect(),
+            data,
+        };
+        Ok(result)
+    }
 }
 
-impl TQueryExecutor for QueryExecutor {
-    async fn run(&mut self, query: &str, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult> {
-        let data: Vec<Vec<ColumnReturnDataType>>;
-        match self {
-            QueryExecutor::Pg(executor) => data = executor.execute(query, abstract_query).await?,
-            QueryExecutor::Mssql(executor) => data = executor.execute(query, abstract_query).await?,
-        }
-
+impl TQueryExecutor for MssqlExecutor {
+    type Input = String;
+    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+        let data: Vec<Vec<ColumnReturnDataType>> = self.execute(&query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
                 .columns
