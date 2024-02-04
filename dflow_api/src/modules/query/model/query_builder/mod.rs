@@ -10,7 +10,7 @@ use self::abstract_query::AbstractQuery;
 /// Recieves an `AbstractQuery`,   
 /// Returns Self::Output
 ///
-pub trait TQueryBuilder {
+pub trait QueryBuilder {
     type Output;
     fn build(&self, query: &AbstractQuery) -> Self::Output;
 }

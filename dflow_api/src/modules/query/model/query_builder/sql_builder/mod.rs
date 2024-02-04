@@ -3,7 +3,7 @@ pub mod mssql_builder;
 
 use crate::modules::dmodel::model::model::TypeAlias;
 
-use super::{abstract_query::{AbstractQuery, FilterValue, QueryColumn, QueryFilter, ValueContainer}, TQueryBuilder};
+use super::{abstract_query::{AbstractQuery, FilterValue, QueryColumn, QueryFilter, ValueContainer}, QueryBuilder};
 use sql_query_builder::Select;
 
 
@@ -66,7 +66,7 @@ where
     }
 }
 
-impl<T> TQueryBuilder for SqlQueryBuilder<T>
+impl<T> QueryBuilder for SqlQueryBuilder<T>
 where
     T: SqlBuilderDialect,
 {

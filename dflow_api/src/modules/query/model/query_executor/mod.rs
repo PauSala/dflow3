@@ -1,6 +1,6 @@
 pub mod sql_executor;
 
-use self::sql_executor::{mssql_executor::MssqlExecutor, postgres_executor::PostgresExecutor};
+use self::sql_executor::{mssql_executor::MssqlRunner, postgres_executor::PostgresRunner};
 
 use super::query_builder::abstract_query::AbstractQuery;
 use anyhow::Result;
@@ -40,15 +40,15 @@ impl QueryResult {
     }
 }
 
-pub(crate) trait TQueryExecutor {
+pub(crate) trait QueryRunner {
     type Input;
     async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery) -> Result<QueryResult>;
 }
 
-impl TQueryExecutor for PostgresExecutor {
+impl QueryRunner for PostgresRunner {
     type Input = String;
     async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
-        let data: Vec<Vec<ColumnReturnDataType>> = self.execute(&query, abstract_query).await?;
+        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
                 .columns
@@ -61,10 +61,10 @@ impl TQueryExecutor for PostgresExecutor {
     }
 }
 
-impl TQueryExecutor for MssqlExecutor {
+impl QueryRunner for MssqlRunner {
     type Input = String;
     async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
-        let data: Vec<Vec<ColumnReturnDataType>> = self.execute(&query, abstract_query).await?;
+        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
                 .columns

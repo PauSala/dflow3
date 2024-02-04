@@ -6,16 +6,16 @@ use deadpool_postgres::Object as Client;
 use crate::modules::{dmodel::model::model::TypeAlias, query::model::{query_builder::abstract_query::AbstractQuery, query_executor::ColumnReturnDataType}};
 
 
-pub struct PostgresExecutor {
+pub struct PostgresRunner {
     client: Client,
 }
 
-impl PostgresExecutor {
+impl PostgresRunner {
     pub fn new(client: Client) -> Self {
-        PostgresExecutor { client }
+        PostgresRunner { client }
     }
 
-    pub(crate) async fn execute(
+    pub(crate) async fn run_query(
         &self,
         query: &str,
         abstract_query: &AbstractQuery<'_>,
