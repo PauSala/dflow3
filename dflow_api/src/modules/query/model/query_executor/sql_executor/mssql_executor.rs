@@ -11,16 +11,16 @@ use crate::modules::{
     shared::shared_state::shared_connections::MssqlClient,
 };
 
-pub struct MssqlExecutor {
+pub struct MssqlRunner {
     client: MssqlClient,
 }
 
-impl MssqlExecutor {
+impl MssqlRunner {
     pub fn new(client: MssqlClient) -> Self {
-        MssqlExecutor { client }
+        MssqlRunner { client }
     }
 
-    pub(crate) async fn execute(
+    pub(crate) async fn run_query(
         &mut self,
         query: &str,
         abstract_query: &AbstractQuery<'_>,

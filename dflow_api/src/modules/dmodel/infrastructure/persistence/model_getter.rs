@@ -86,7 +86,7 @@ impl<'a> ModelGetter<'a> {
                         display_name: row.get(2),
                         type_alias: TypeAlias::from_string(&type_alias),
                         actual_type: row.get(3),
-                        is_array: row.get(4)
+                        is_array: row.get(6)
                     },
                     table_id,
                 )

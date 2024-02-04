@@ -2,14 +2,7 @@
 import { useEffect, useState } from "react";
 import { DataModel, Table } from "../../model/data-model";
 import { UserQueryBuilder } from "./model/user-query";
-import { Button } from "../../../components/ui/button";
 import { MainTableSelector } from "./selectors/tables/main-table-selector";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../../components/ui/tooltip";
 import { Blend, Sigma } from "lucide-react";
 import { v4 } from "uuid";
 import { JoinModule } from "./selectors/join/join-module";
@@ -134,6 +127,7 @@ export function UserQuery({
         className="h-4 w-4 text-violet-600"
         label="Join data"
         onClick={addJoinModule}
+        icon={() => <Blend className="h-4 w-4 text-violet-600"/>}
       ></ActionButton>
       {mainTable &&
         summarizeModules.map((id) => (
@@ -152,6 +146,7 @@ export function UserQuery({
         className="h-4 w-4 text-amber-600"
         label="Summarize"
         onClick={addSummarizeModule}
+        icon={() => <Sigma className="h-4 w-4 text-amber-600"/>}
       ></ActionButton>
       {showPreview && (
         <PreviewTable

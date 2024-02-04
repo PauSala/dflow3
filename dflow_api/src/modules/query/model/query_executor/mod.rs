@@ -1,6 +1,6 @@
 pub mod sql_executor;
 
-use self::sql_executor::{mssql_executor::MssqlExecutor, postgres_executor::PostgresExecutor};
+use self::sql_executor::{mssql_executor::MssqlRunner, postgres_executor::PostgresRunner};
 
 use super::query_builder::abstract_query::AbstractQuery;
 use anyhow::Result;
@@ -40,23 +40,31 @@ impl QueryResult {
     }
 }
 
-pub(crate) trait TQueryExecutor {
-    async fn run(&mut self, query: &str, abstract_query: &AbstractQuery) -> Result<QueryResult>;
+pub(crate) trait QueryRunner {
+    type Input;
+    async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery) -> Result<QueryResult>;
 }
 
-pub(crate) enum QueryExecutor {
-    Pg(PostgresExecutor),
-    Mssql(MssqlExecutor)
+impl QueryRunner for PostgresRunner {
+    type Input = String;
+    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
+        let result = QueryResult {
+            columns: abstract_query
+                .columns
+                .iter()
+                .map(|c| c.column_name.clone())
+                .collect(),
+            data,
+        };
+        Ok(result)
+    }
 }
 
-impl TQueryExecutor for QueryExecutor {
-    async fn run(&mut self, query: &str, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult> {
-        let data: Vec<Vec<ColumnReturnDataType>>;
-        match self {
-            QueryExecutor::Pg(executor) => data = executor.execute(query, abstract_query).await?,
-            QueryExecutor::Mssql(executor) => data = executor.execute(query, abstract_query).await?,
-        }
-
+impl QueryRunner for MssqlRunner {
+    type Input = String;
+    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
                 .columns
