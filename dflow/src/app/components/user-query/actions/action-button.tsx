@@ -6,15 +6,18 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Sigma } from "lucide-react";
+import { ReactNode } from "react";
 
 export function ActionButton({
   className,
   label,
   onClick,
+  icon
 }: {
   className: string;
   label: string;
   onClick: () => void;
+  icon: () => ReactNode
 }) {
   return (
     <TooltipProvider delayDuration={100}>
@@ -22,7 +25,7 @@ export function ActionButton({
         {
           <TooltipTrigger asChild>
             <Button variant="outline" size="icon" onClick={() => onClick()}>
-              <Sigma className={className} />
+              {icon()}
             </Button>
           </TooltipTrigger>
         }

@@ -98,7 +98,6 @@ pub(crate) async fn user_query_handler(
         model_configuration,
         state,
         model_retriever,
-        &user_query.query.model_id,
         &user_query.query
     )
     .await

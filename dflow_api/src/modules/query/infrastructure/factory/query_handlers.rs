@@ -3,6 +3,7 @@ use rocket::{tokio::sync::RwLock, State};
 use crate::modules::datasource::model::configurations::sql_configuration::SqlConfig;
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
 use crate::modules::dmodel::model::model::Model;
+use crate::modules::query::application::QueryHandler;
 use crate::modules::query::model::query_builder::abstract_query::AbstractQuery;
 use crate::modules::query::model::query_builder::sql_builder::mssql_builder::MssqlDialect;
 use crate::modules::query::model::query_builder::sql_builder::postgres_builder::PostgresDialect;
@@ -10,7 +11,7 @@ use crate::modules::query::model::query_builder::sql_builder::SqlQueryBuilder;
 use crate::modules::query::model::query_executor::sql_executor::mssql_executor::MssqlRunner;
 use crate::modules::query::model::query_executor::sql_executor::postgres_executor::PostgresRunner;
 use crate::modules::query::model::query_executor::QueryResult;
-use crate::modules::query::model::QueryHandler;
+
 use crate::modules::{
     datasource::model::{
         configurations::configurations::DatasourceConfiguration, sql_dialect::SqlDialect,
@@ -23,10 +24,9 @@ pub(crate) async fn handle_query(
     config: DatasourceConfiguration,
     state: &State<RwLock<SharedConnections>>,
     mut model_retriever: ModelGetter<'_>,
-    model_id: &str,
     query: &AbstractQuery<'_>,
 ) -> Result<QueryResult> {
-    let model = model_retriever.retrieve(model_id).await?;
+    let model = model_retriever.retrieve(query.model_id).await?;
     let result;
     match config {
         DatasourceConfiguration::Sql(config) => match config.dialect {
@@ -73,7 +73,7 @@ pub(crate) async fn mssql_query_handler(
             model,
             schema: config
                 .schema
-                .expect("Schema should be defined for posgres datamodels"),
+                .expect("Schema should be defined for mssql datamodels"),
         },
     };
     let executor = MssqlRunner::new(client);
