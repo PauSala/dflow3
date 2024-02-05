@@ -1,5 +1,6 @@
 pub mod abstract_query;
 pub mod sql_builder;
+pub mod mongodb_builder;
 
 use self::abstract_query::AbstractQuery;
 

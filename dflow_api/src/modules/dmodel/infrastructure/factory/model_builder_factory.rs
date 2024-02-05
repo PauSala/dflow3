@@ -64,7 +64,7 @@ pub(crate) async fn model_builder_factory(
                 MongoDbConfiguration {
                     datasource_id: "".to_owned(),
                     conn_string: "mongodb://localhost:27017".to_owned(),
-                    db_name: "RESOURCES_MANAGEMENT".to_owned(),
+                    db_name: "DFLOW".to_owned(),
                 },
                 client,
             );
