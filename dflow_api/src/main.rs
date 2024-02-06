@@ -3,7 +3,7 @@ pub mod template_dir;
 
 use modules::dashboard::infrastructure::routes::dashboard_routes;
 use modules::datasource::infrastructure::routes::datasource_routes;
-use modules::datasource::model::configurations::mongodb_configuration::MongoDbConfiguration;
+use modules::datasource::model::configurations::mongodb_configuration::MongoDbConfig;
 use modules::dmodel::infrastructure::routes::dmodel_routes;
 use modules::dmodel::model::model_builder::mongodb_model_builder::MongoDbBuilder;
 use modules::query::infrastructure::routes::user_query_routes;
@@ -61,7 +61,7 @@ async fn mongo() -> Result<String, ()> {
 
     // Get a handle to a database.
     let mut b = MongoDbBuilder::new(
-        MongoDbConfiguration {
+        MongoDbConfig {
             datasource_id: "".to_owned(),
             conn_string: "mongodb://localhost:27017".to_owned(),
             db_name: "RESOURCES_MANAGEMENT".to_owned(),

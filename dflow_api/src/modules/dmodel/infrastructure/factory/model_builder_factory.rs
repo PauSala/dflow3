@@ -5,7 +5,7 @@ use crate::{
             model::{
                 configurations::{
                     configurations::DatasourceConfiguration,
-                    mongodb_configuration::MongoDbConfiguration,
+                    mongodb_configuration::MongoDbConfig,
                 },
                 sql_dialect::SqlDialect,
             },
@@ -61,7 +61,7 @@ pub(crate) async fn model_builder_factory(
             // Get a handle to the deployment.
             let client = Client::with_options(client_options).unwrap();
             let b = MongoDbBuilder::new(
-                MongoDbConfiguration {
+                MongoDbConfig {
                     datasource_id: "".to_owned(),
                     conn_string: "mongodb://localhost:27017".to_owned(),
                     db_name: "DFLOW".to_owned(),

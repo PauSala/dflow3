@@ -1,13 +1,12 @@
 use crate::{
     modules::datasource::{
         infrastructure::persistence::{
-            datasource_getter::DataSourceGetter, sql_config_getter::SqlConfigurationGetter,
+            datasource_getter::DataSourceGetter,
+            mongo_db_config_getter::MongoDbConfigurationGetter,
+            sql_config_getter::SqlConfigurationGetter,
         },
         model::{
-            configurations::{
-                configurations::{ConfigGetter, DatasourceConfiguration},
-                mongodb_configuration::MongoDbConfiguration,
-            },
+            configurations::configurations::{ConfigGetter, DatasourceConfiguration},
             datasource_repository::TDataSourceGetter,
             datasource_type::DataSourceType,
         },
@@ -44,17 +43,17 @@ pub(crate) async fn configuration_factory(
         .await
         .unwrap();
 
-    let mut config_retriever;
+    let model_configuration;
 
     match datasource.datasource_type {
-        DataSourceType::Sql(_) => config_retriever = SqlConfigurationGetter::new(db),
-        DataSourceType::MongoDb => return Ok(DatasourceConfiguration::MongoDb(MongoDbConfiguration {
-            datasource_id: "".to_owned(),
-            conn_string: "".to_owned(),
-            db_name: "".to_owned(),
-        })),
+        DataSourceType::Sql(_) => {
+            let mut config_retriever = SqlConfigurationGetter::new(db);
+            model_configuration = config_retriever.retrieve(datasource_id).await.unwrap();
+        }
+        DataSourceType::MongoDb => {
+            let mut config_retriever = MongoDbConfigurationGetter::new(db);
+            model_configuration = config_retriever.retrieve(datasource_id).await.unwrap();
+        }
     }
-
-    let model_configuration = config_retriever.retrieve(datasource_id).await.unwrap();
     Ok(model_configuration)
 }

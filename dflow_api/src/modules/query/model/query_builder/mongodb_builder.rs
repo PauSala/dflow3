@@ -7,6 +7,20 @@ use super::{
     QueryBuilder,
 };
 
+pub struct MongoDbQuery {
+    pub main_document: String,
+    pub pipeline: Vec<Document>,
+}
+
+impl MongoDbQuery {
+    pub fn new(main_document: String, pipeline: Vec<Document>) -> Self {
+        Self {
+            main_document,
+            pipeline,
+        }
+    }
+}
+
 pub struct MongoDbBuilder {
     pub model: Model,
 }
@@ -17,16 +31,18 @@ pub struct MongoDbBuilder {
  * - Always do and unwind for non nesting-level-0 fields (embeded docs, lookups, etc)
  * - Stages:
  * $lookup : {
- *      from: mainTable in join definition,
- *      localField: joinField in join definition,
- *      foreignField: mainField in join definition,
- *      as: mainTableName in join definition
+ *      from: [mainTable in join definition],
+ *      localField: [joinField in join definition],
+ *      foreignField: [mainField in join definition],
+ *      as: [mainTableName in join definition]
  * },
  * {$unwind: [tableName]}
  * $group: {
  *      _id: {... all non-aggregated fields}
  *      [name]: {[aggregation]: [fieldName] | [embeded | lookup].fieldName | 1(for count)}
  * },
+ * - naming:
+ *
  */
 
 impl MongoDbBuilder {
@@ -34,7 +50,7 @@ impl MongoDbBuilder {
         Self { model }
     }
 
-    /// TO-DO: provide a better mechanism to retrieve MainCollectionId (probably in the AbstractQuery model)
+    /// TO-DO: provide a better mechanism to retrieve MainCollectionId (probably modifying AbstractQuery definition)
     pub fn get_main_collection_id<'a>(&self, query: &'a AbstractQuery) -> &'a usize {
         &query
             .columns
@@ -43,11 +59,15 @@ impl MongoDbBuilder {
             .table_id
     }
 
-    pub fn lookups(&self, query: &AbstractQuery, pipeline: &mut Vec<Document>) {
-        let main_table_id = self.get_main_collection_id(query);
+    pub fn lookups(
+        &self,
+        query: &AbstractQuery,
+        main_collection_id: &usize,
+        pipeline: &mut Vec<Document>,
+    ) {
         for j in &query.joins {
             //Map joinDefinition to lookup:
-            //Caution >> JOIN main_table (FOREIGN) ON A.main_field (FOREIGN_FIELD) = B.join_field (LOCAL_FIELD)
+            //This represents: LEFT JOIN main_table (FOREIGN) ON A.main_field (FOREIGN_FIELD) = B.join_field (LOCAL_FIELD)
             //local
             let main_table = self.model.tables.get(&j.join_table_id).unwrap();
             let local_field = main_table.columns.get(&j.join_field_id).unwrap();
@@ -56,7 +76,7 @@ impl MongoDbBuilder {
             let foreign_field = from.columns.get(&j.main_field_id).unwrap();
 
             //If localField is not the base document it must be referenced as [foreign_document].[field_name]
-            let local_field_is_main_table = main_table_id != &j.join_table_id;
+            let local_field_is_main_table = main_collection_id != &j.join_table_id;
             let mut local_field_name = local_field.name.clone();
             if local_field_is_main_table {
                 let value = format!("{}.{}", &main_table.name, local_field_name).to_owned();
@@ -78,35 +98,30 @@ impl MongoDbBuilder {
         }
     }
 
-    pub fn group(&self, query: &AbstractQuery, pipeline: &mut Vec<Document>) {
-        let main_table_id = self.get_main_collection_id(query);
-        let group_fields = query
-            .columns
-            .iter()
-            .filter(|c| c.aggregation.is_none())
-            .collect::<Vec<&QueryColumn>>();
+    pub fn get_field_name(&self, main_table_id: &usize, c: &QueryColumn) -> String {
+        let mut field_name = c.column_name.clone();
+        if main_table_id != &c.table_id {
+            field_name = format!("{}.{}", &c.table_name, field_name).to_owned();
+        }
+        field_name
+    }
 
+    pub fn group(
+        &self,
+        main_collection_id: &usize,
+        pipeline: &mut Vec<Document>,
+        group_fields: &Vec<&QueryColumn>,
+        aggregated_fields: &Vec<&QueryColumn>,
+    ) {
         let mut id = Document::new();
         for g in group_fields {
-            let mut field_name = g.column_name.clone();
-            if main_table_id != &g.table_id {
-                field_name = format!("{}.{}", &g.table_name, field_name).to_owned();
-            }
+            let field_name = self.get_field_name(main_collection_id, g);
             id.insert(&field_name.replace(".", "_"), format!("${}", &field_name));
         }
 
-        let aggregated_fields = query
-            .columns
-            .iter()
-            .filter(|c| c.aggregation.is_some())
-            .collect::<Vec<&QueryColumn>>();
-
         let mut group = Document::new();
         for a in aggregated_fields {
-            let mut field_name = a.column_name.clone();
-            if main_table_id != &a.table_id {
-                field_name = format!("{}.{}", &a.table_name, field_name).to_owned();
-            }
+            let field_name = self.get_field_name(main_collection_id, a);
             let aggregation = doc! {
                 "$sum": "$".to_owned() + &field_name
             };
@@ -118,37 +133,26 @@ impl MongoDbBuilder {
         });
     }
 
-    pub fn project(&self, query: &AbstractQuery, pipeline: &mut Vec<Document>) {
-        let main_table_id = self.get_main_collection_id(query);
-        let group_fields = query
-            .columns
-            .iter()
-            .filter(|c| c.aggregation.is_none())
-            .collect::<Vec<&QueryColumn>>();
+    pub fn project(
+        &self,
+        main_collection_id: &usize,
+        pipeline: &mut Vec<Document>,
+        group_fields: &Vec<&QueryColumn>,
+        aggregated_fields: &Vec<&QueryColumn>,
+    ) {
         let mut project = Document::new();
         project.insert("_id", 0);
-        let aggregated_fields = query
-            .columns
-            .iter()
-            .filter(|c| c.aggregation.is_some())
-            .collect::<Vec<&QueryColumn>>();
+
         for g in group_fields {
-            let mut field_name = g.column_name.clone();
-            if main_table_id != &g.table_id {
-                field_name = format!("{}.{}", &g.table_name, field_name).to_owned();
-            }
-            let mut field_value = field_name.clone(); 
-            field_value = field_value.replace(".", "_");
+            let field_name = self.get_field_name(main_collection_id, g).replace(".", "_");
+            let mut field_value = field_name.clone();
             if aggregated_fields.len() > 0 {
                 field_value = format!("_id.{}", field_value).to_owned();
             }
-            project.insert(&field_name.replace(".", "_"), format!("${}", &field_value));
+            project.insert(&field_name, format!("${}", &field_value));
         }
         for a in aggregated_fields {
-            let mut field_name = a.column_name.clone();
-            if main_table_id != &a.table_id {
-                field_name = format!("{}_{}", &a.table_name, field_name).to_owned();
-            }
+            let field_name = self.get_field_name(main_collection_id, a).replace(".", "_");
             project.insert(&field_name, 1);
         }
         pipeline.push(doc! {"$project": project})
@@ -156,17 +160,40 @@ impl MongoDbBuilder {
 }
 
 impl QueryBuilder for MongoDbBuilder {
-    type Output = Vec<Document>;
+    type Output = MongoDbQuery;
 
     fn build(&self, query: &AbstractQuery) -> Self::Output {
         let mut pipeline: Vec<Document> = vec![];
-        if !query.joins.is_empty() {
-            self.lookups(query, &mut pipeline);
-        }
-        self.group(query, &mut pipeline);
-        self.project(query, &mut pipeline);
-        //let mut project = Document::new();
+        let main_collection_id = self.get_main_collection_id(query);
+        let group_fields = query
+            .columns
+            .iter()
+            .filter(|c| c.aggregation.is_none())
+            .collect::<Vec<&QueryColumn>>();
+        let aggregated_fields = query
+            .columns
+            .iter()
+            .filter(|c| c.aggregation.is_some())
+            .collect::<Vec<&QueryColumn>>();
 
-        pipeline
+        if !query.joins.is_empty() {
+            self.lookups(query, main_collection_id, &mut pipeline);
+        };
+        self.group(
+            main_collection_id,
+            &mut pipeline,
+            &group_fields,
+            &aggregated_fields,
+        );
+        self.project(
+            main_collection_id,
+            &mut pipeline,
+            &group_fields,
+            &aggregated_fields,
+        );
+        MongoDbQuery::new(
+            query.columns.first().unwrap().table_name.to_owned(),
+            pipeline,
+        )
     }
 }

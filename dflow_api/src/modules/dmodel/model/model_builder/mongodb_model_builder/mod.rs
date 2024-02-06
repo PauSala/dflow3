@@ -9,16 +9,16 @@ use serde_json::{to_value, Value};
 
 use crate::modules::dmodel::model::model::TypeAlias;
 use crate::modules::{
-    datasource::model::configurations::mongodb_configuration::MongoDbConfiguration,
+    datasource::model::configurations::mongodb_configuration::MongoDbConfig,
     dmodel::model::model::Model,
 };
 pub struct MongoDbBuilder {
     client: MongoClient,
-    config: MongoDbConfiguration,
+    config: MongoDbConfig,
 }
 
 impl MongoDbBuilder {
-    pub(crate) fn new(config: MongoDbConfiguration, client: MongoClient) -> Self {
+    pub(crate) fn new(config: MongoDbConfig, client: MongoClient) -> Self {
         Self { client, config }
     }
     pub(crate) async fn build_model(

@@ -1,9 +1,9 @@
 pub mod sql;
-pub mod mongodb_executor;
+pub mod mongo_db;
 
-use self::sql::{mssql_runner::MssqlRunner, postgres_runner::PostgresRunner};
+use self::{mongo_db::MongoDbRunner, sql::{mssql_runner::MssqlRunner, postgres_runner::PostgresRunner}};
 
-use super::query_builder::abstract_query::AbstractQuery;
+use super::query_builder::{abstract_query::AbstractQuery, mongodb_builder::MongoDbQuery};
 use anyhow::Result;
 use serde::{Serialize, Serializer};
 
@@ -48,7 +48,7 @@ pub(crate) trait QueryRunner {
 
 impl QueryRunner for PostgresRunner {
     type Input = String;
-    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+    async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
         let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
@@ -64,8 +64,24 @@ impl QueryRunner for PostgresRunner {
 
 impl QueryRunner for MssqlRunner {
     type Input = String;
-    async fn run(&mut self, query: String, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+    async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
         let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(&query, abstract_query).await?;
+        let result = QueryResult {
+            columns: abstract_query
+                .columns
+                .iter()
+                .map(|c| c.column_name.clone())
+                .collect(),
+            data,
+        };
+        Ok(result)
+    }
+}
+
+impl QueryRunner for MongoDbRunner {
+    type Input = MongoDbQuery;
+    async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
+        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(query, abstract_query).await?;
         let result = QueryResult {
             columns: abstract_query
                 .columns

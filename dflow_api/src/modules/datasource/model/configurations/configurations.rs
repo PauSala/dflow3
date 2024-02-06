@@ -1,7 +1,7 @@
 
 use anyhow::Result;
 
-use super::{mongodb_configuration::MongoDbConfiguration, sql_configuration::SqlConfig};
+use super::{mongodb_configuration::MongoDbConfig, sql_configuration::SqlConfig};
 pub(crate) trait ConfigSaver {
     async fn store(&mut self) -> Result<()>;
 }
@@ -13,5 +13,5 @@ pub (crate) trait ConfigGetter {
 #[derive(Debug)]
 pub enum DatasourceConfiguration {
     Sql(SqlConfig),
-    MongoDb(MongoDbConfiguration)
+    MongoDb(MongoDbConfig)
 }

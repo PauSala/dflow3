@@ -1,9 +1,7 @@
-use mongodb::bson::{self, Document};
 use mongodb::options::ClientOptions;
-use mongodb::Collection;
-use rocket::futures::StreamExt;
 use rocket::{tokio::sync::RwLock, State};
 
+use crate::modules::datasource::model::configurations::mongodb_configuration::MongoDbConfig;
 use crate::modules::datasource::model::configurations::sql_configuration::SqlConfig;
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
 use crate::modules::dmodel::model::model::Model;
@@ -13,10 +11,10 @@ use crate::modules::query::model::query_builder::mongodb_builder::MongoDbBuilder
 use crate::modules::query::model::query_builder::sql_builder::mssql_builder::MssqlDialect;
 use crate::modules::query::model::query_builder::sql_builder::postgres_builder::PostgresDialect;
 use crate::modules::query::model::query_builder::sql_builder::SqlQueryBuilder;
-use crate::modules::query::model::query_builder::QueryBuilder;
-use crate::modules::query::model::query_executor::sql_executor::mssql_executor::MssqlRunner;
-use crate::modules::query::model::query_executor::sql_executor::postgres_executor::PostgresRunner;
-use crate::modules::query::model::query_executor::QueryResult;
+use crate::modules::query::model::query_runner::mongo_db::MongoDbRunner;
+use crate::modules::query::model::query_runner::sql::mssql_runner::MssqlRunner;
+use crate::modules::query::model::query_runner::sql::postgres_runner::PostgresRunner;
+use crate::modules::query::model::query_runner::QueryResult;
 
 use crate::modules::{
     datasource::model::{
@@ -45,30 +43,28 @@ pub(crate) async fn handle_query(
                 result = handler.handle(query).await?;
             }
         },
-        DatasourceConfiguration::MongoDb(_) => {
-            let builder = MongoDbBuilder::new(model);
-            let pipeline = builder.build(query);
-            dbg!(&pipeline);
-            let mut client_options = ClientOptions::parse("mongodb://localhost:27017")
-                .await
-                .unwrap();
-            client_options.app_name = Some("DFLOW".to_string());
-            use mongodb::Client;
-            let client = Client::with_options(client_options).unwrap();
-            let btt: Collection<Document> = client.database("DFLOW").collection("customers");
-            let mut results = btt.aggregate(pipeline, None).await?;
-            while let Some(result) = results.next().await {
-                // Use serde to deserialize into the MovieSummary struct:
-                let doc: Document = bson::from_document(result?)?;
-                println!("* {}", doc);
-             }
-            result = QueryResult {
-                columns: vec![],
-                data: vec![],
-            }
+        DatasourceConfiguration::MongoDb(config) => {
+            let mut handler = mongo_query_handler(model, config).await?;
+            result = handler.handle(query).await?;
         }
     };
     return Ok(result);
+}
+
+pub(crate) async fn mongo_query_handler(
+    model: Model,
+    config: MongoDbConfig,
+) -> Result<QueryHandler<MongoDbBuilder, MongoDbRunner>> {
+    
+    use mongodb::Client;
+    let mut client_options = ClientOptions::parse(&config.conn_string)
+        .await?;
+    client_options.app_name = Some("DFLOW".to_string());
+    let client = Client::with_options(client_options)?;
+
+    let builder = MongoDbBuilder::new(model);
+    let runner = MongoDbRunner::new(client, config);
+    Ok(QueryHandler::new(builder, runner))
 }
 
 pub(crate) async fn postgres_query_handler(

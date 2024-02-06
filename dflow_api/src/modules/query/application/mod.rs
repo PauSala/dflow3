@@ -1,5 +1,5 @@
 use anyhow::Result;
-use super::model::{query_builder::QueryBuilder, query_executor::{QueryResult, QueryRunner}};
+use super::model::{query_builder::QueryBuilder, query_runner::{QueryResult, QueryRunner}};
 use crate::modules::query::model::query_builder::abstract_query::AbstractQuery;
 
 pub(crate) struct QueryHandler<B, E>

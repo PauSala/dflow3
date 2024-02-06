@@ -40,6 +40,19 @@ impl SqliteConnection {
         )?;
         Ok(())
     }
+
+    fn table_mongo_connection(&self, cn: &Connection) -> Result<()> {
+        cn.execute(
+            "CREATE TABLE IF NOT EXISTS mongodb_configurations (
+                datasource_id TEXT primary key,
+                conn_string TEXT NOT NULL,
+                db_name TEXT NOT NULL,
+                FOREIGN KEY(datasource_id) REFERENCES datasources(id)
+            )",
+            (),
+        )?;
+        Ok(())
+    }
     fn table_models(&self, cn: &Connection) -> Result<()> {
         cn.execute(
             "CREATE TABLE IF NOT EXISTS models (
@@ -106,7 +119,9 @@ impl SqliteConnection {
                 user_id TEXT NOT NULL,
                 model_id TEXT NOT NULL,
                 panel JSON
-            );", [])?;
+            );",
+            [],
+        )?;
         Ok(())
     }
 
@@ -118,20 +133,23 @@ impl SqliteConnection {
                 model_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 config JSON
-            );", [])?;
+            );",
+            [],
+        )?;
         Ok(())
     }
 
     pub fn create_db_if_not_exists(&self) -> Result<()> {
         let cn = self.connection()?;
         self.table_datasources(&cn)?;
-        self.table_sql_connection(&cn)?;
         self.table_models(&cn)?;
         self.table_tables(&cn)?;
         self.table_columns(&cn)?;
         self.table_relations(&cn)?;
         self.table_panels(&cn)?;
         self.table_dashboards(&cn)?;
+        self.table_sql_connection(&cn)?;
+        self.table_mongo_connection(&cn)?;
         Ok(())
     }
 }
