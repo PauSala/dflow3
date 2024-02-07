@@ -81,14 +81,10 @@ impl QueryRunner for MssqlRunner {
 impl QueryRunner for MongoDbRunner {
     type Input = MongoDbQuery;
     async fn run(&mut self, query: Self::Input, abstract_query: &AbstractQuery<'_>) -> Result<QueryResult>{
-        let data: Vec<Vec<ColumnReturnDataType>> = self.run_query(query, abstract_query).await?;
+        let data: (Vec<String>, Vec<Vec<ColumnReturnDataType>>) = self.run_query(query, abstract_query).await?;
         let result = QueryResult {
-            columns: abstract_query
-                .columns
-                .iter()
-                .map(|c| c.column_name.clone())
-                .collect(),
-            data,
+            columns: data.0,
+            data: data.1,
         };
         Ok(result)
     }

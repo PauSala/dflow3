@@ -3,20 +3,22 @@ use mongodb::bson::{doc, Document};
 use crate::modules::dmodel::model::model::Model;
 
 use super::{
-    abstract_query::{AbstractQuery, QueryColumn},
+    abstract_query::{AbstractQuery, Aggregation, QueryColumn},
     QueryBuilder,
 };
 
 pub struct MongoDbQuery {
     pub main_document: String,
+    pub columns: Vec<String>,
     pub pipeline: Vec<Document>,
 }
 
 impl MongoDbQuery {
-    pub fn new(main_document: String, pipeline: Vec<Document>) -> Self {
+    pub fn new(main_document: String, pipeline: Vec<Document>, columns: Vec<String>) -> Self {
         Self {
             main_document,
             pipeline,
+            columns,
         }
     }
 }
@@ -41,7 +43,9 @@ pub struct MongoDbBuilder {
  *      _id: {... all non-aggregated fields}
  *      [name]: {[aggregation]: [fieldName] | [embeded | lookup].fieldName | 1(for count)}
  * },
- * - naming:
+ * - $project {
+ *  
+ * }
  *
  */
 
@@ -106,6 +110,24 @@ impl MongoDbBuilder {
         field_name
     }
 
+    pub fn handle_aggregation(
+        &self,
+        agg: Option<Aggregation>,
+        field_name: &str,
+    ) -> Option<Document> {
+        match agg {
+            Some(agg) => match agg {
+                Aggregation::Sum => Some(doc! {"$sum": "$".to_owned() + &field_name}),
+                Aggregation::Avg => Some(doc! {"$avg": "$".to_owned() + &field_name}),
+                Aggregation::Max => Some(doc! {"$max": "$".to_owned() + &field_name}),
+                Aggregation::Min => Some(doc! {"$min": "$".to_owned() + &field_name}),
+                Aggregation::Count => Some(doc! {"$sum": 1}),
+                Aggregation::CountDistinct => None,
+            },
+            None => None,
+        }
+    }
+
     pub fn group(
         &self,
         main_collection_id: &usize,
@@ -122,10 +144,10 @@ impl MongoDbBuilder {
         let mut group = Document::new();
         for a in aggregated_fields {
             let field_name = self.get_field_name(main_collection_id, a);
-            let aggregation = doc! {
-                "$sum": "$".to_owned() + &field_name
-            };
-            group.insert(&field_name.replace(".", "_"), aggregation);
+            let aggregation = self.handle_aggregation(a.aggregation, &field_name);
+            if let Some(agg) = aggregation {
+                group.insert(&field_name.replace(".", "_"), agg);
+            }
         }
         group.insert("_id", id);
         pipeline.push(doc! {
@@ -139,23 +161,26 @@ impl MongoDbBuilder {
         pipeline: &mut Vec<Document>,
         group_fields: &Vec<&QueryColumn>,
         aggregated_fields: &Vec<&QueryColumn>,
-    ) {
+    ) -> Vec<String> {
         let mut project = Document::new();
+        //Don't send _id group by default
         project.insert("_id", 0);
+        let mut columns: Vec<String> = vec![];
 
-        for g in group_fields {
-            let field_name = self.get_field_name(main_collection_id, g).replace(".", "_");
-            let mut field_value = field_name.clone();
-            if aggregated_fields.len() > 0 {
-                field_value = format!("_id.{}", field_value).to_owned();
-            }
-            project.insert(&field_name, format!("${}", &field_value));
-        }
         for a in aggregated_fields {
+            columns.push(a.column_name.to_owned());
             let field_name = self.get_field_name(main_collection_id, a).replace(".", "_");
             project.insert(&field_name, 1);
         }
-        pipeline.push(doc! {"$project": project})
+
+        for g in group_fields {
+            columns.push(g.column_name.to_owned());
+            let field_name = self.get_field_name(main_collection_id, g).replace(".", "_");
+            let field_value = format!("_id.{}", field_name.clone()).to_owned();
+            project.insert(&field_name, format!("${}", &field_value));
+        }
+        pipeline.push(doc! {"$project": project});
+        columns
     }
 }
 
@@ -185,15 +210,17 @@ impl QueryBuilder for MongoDbBuilder {
             &group_fields,
             &aggregated_fields,
         );
-        self.project(
+        let columns = self.project(
             main_collection_id,
             &mut pipeline,
             &group_fields,
             &aggregated_fields,
         );
+
         MongoDbQuery::new(
             query.columns.first().unwrap().table_name.to_owned(),
             pipeline,
+            columns,
         )
     }
 }

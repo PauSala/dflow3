@@ -3,11 +3,7 @@ use crate::{
         datasource::{
             infrastructure::factory::configuration_factory::configuration_factory,
             model::{
-                configurations::{
-                    configurations::DatasourceConfiguration,
-                    mongodb_configuration::MongoDbConfig,
-                },
-                sql_dialect::SqlDialect,
+                configurations::configurations::DatasourceConfiguration, sql_dialect::SqlDialect,
             },
         },
         dmodel::model::model_builder::{
@@ -50,24 +46,15 @@ pub(crate) async fn model_builder_factory(
                 Ok(ModelBuilder::Sql(model_builder))
             }
         },
-        DatasourceConfiguration::MongoDb(_) => {
-            let mut client_options = ClientOptions::parse("mongodb://localhost:27017")
-                .await
-                .unwrap();
+        DatasourceConfiguration::MongoDb(config) => {
+            let mut client_options = ClientOptions::parse(&config.conn_string).await.unwrap();
 
             // Manually set an option.
             client_options.app_name = Some("DFLOW".to_string());
 
             // Get a handle to the deployment.
             let client = Client::with_options(client_options).unwrap();
-            let b = MongoDbBuilder::new(
-                MongoDbConfig {
-                    datasource_id: "".to_owned(),
-                    conn_string: "mongodb://localhost:27017".to_owned(),
-                    db_name: "DFLOW".to_owned(),
-                },
-                client,
-            );
+            let b = MongoDbBuilder::new(config, client);
             Ok(ModelBuilder::MongoDb(b))
         }
     }
