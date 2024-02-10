@@ -6,7 +6,7 @@ use deadpool_tiberius::tiberius::numeric::Numeric;
 use crate::modules::{
     dmodel::model::model::TypeAlias,
     query::model::{
-        query_builder::abstract_query::AbstractQuery, query_runner::ColumnReturnDataType,
+        query_builder::abstract_query::AbstractQuery, query_runner::ReturnDataType,
     },
     shared::shared_state::shared_connections::MssqlClient,
 };
@@ -24,7 +24,7 @@ impl MssqlRunner {
         &mut self,
         query: &str,
         abstract_query: &AbstractQuery<'_>,
-    ) -> Result<Vec<Vec<ColumnReturnDataType>>> {
+    ) -> Result<Vec<Vec<ReturnDataType>>> {
         let columns = abstract_query.get_columns();
         let mut column_map = HashMap::new();
         for col in columns {
@@ -36,7 +36,7 @@ impl MssqlRunner {
             .await?
             .into_first_result()
             .await?;
-        let mut data: Vec<Vec<ColumnReturnDataType>> = Vec::new();
+        let mut data: Vec<Vec<ReturnDataType>> = Vec::new();
         for row in rows.iter() {
             let mut row_data = Vec::new();
             for (col_index, col) in row.columns().iter().enumerate() {
@@ -45,19 +45,19 @@ impl MssqlRunner {
                 match m.data_type {
                     TypeAlias::Integer | TypeAlias::Float => {
                         let v: Option<Numeric> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Number(v.map(|value| value.into())));
+                        row_data.push(ReturnDataType::Number(v.map(|value| value.into())));
                     }
                     TypeAlias::Bool => {
                         let v: Option<bool> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Bool(v.map(|value| value.into())));
+                        row_data.push(ReturnDataType::Bool(v.map(|value| value.into())));
                     }
                     TypeAlias::Text => {
                         let v: Option<&str> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Text(v.map(|value| value.into())));
+                        row_data.push(ReturnDataType::Text(v.map(|value| value.into())));
                     }
                     TypeAlias::Date => {
                         let v: Option<&str> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Date(v.map(|value| value.into())));
+                        row_data.push(ReturnDataType::Date(v.map(|value| value.into())));
                     }
                     TypeAlias::Array(_) => {},
                 }

@@ -34,6 +34,8 @@ export function panelWrapperFactory(
         height: heightInPixels(10),
         resizing: false,
         onContentChange(builder, chartType) {},
+        onDelete(panelId: string){},
+
       },
     };
   }
@@ -57,6 +59,7 @@ export function panelWrapperFactory(
         id: panelDto.panel_id,
         name: panelDto.panel.props.name,
         onContentChange(builder, chartType) {},
+        onDelete(panelId: string){},
         resizing: false,
         builder: builder,
       },

@@ -40,7 +40,12 @@ export default function Panel({
   onDelete,
 }: PanelProps) {
   const style = { width: `${width}px`, height: `${height}px` };
-  const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
+  const [data, setData] = useState<QueryResponse>({
+    categorical_fields: [],
+    numerical_fields: [],
+    count_categorical: 0,
+    count_numerical: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [openQueryConfig, setOpenQueryConfig] = useState(false);
 

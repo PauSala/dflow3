@@ -13,10 +13,10 @@ export interface VisualizationProps {
 export type VisualizationType = "line" | "bar" | "hBar" | "pie" | "table";
 export interface Chart {
     type: VisualizationType;
-    validator: (data: UserQuery) => boolean
+    validator: (data: QueryResponse) => boolean
 }
 
-export type VisualizationValidator = (data: UserQuery) => boolean;
+export type VisualizationValidator = (data: QueryResponse) => boolean;
 
 
 export function visualizationValidatorProvider(t: VisualizationType): VisualizationValidator {

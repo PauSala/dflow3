@@ -14,7 +14,7 @@ use crate::modules::query::model::query_builder::sql_builder::SqlQueryBuilder;
 use crate::modules::query::model::query_runner::mongo_db::MongoDbRunner;
 use crate::modules::query::model::query_runner::sql::mssql_runner::MssqlRunner;
 use crate::modules::query::model::query_runner::sql::postgres_runner::PostgresRunner;
-use crate::modules::query::model::query_runner::QueryResult;
+use crate::modules::query::model::query_runner::ShapedResult;
 
 use crate::modules::{
     datasource::model::{
@@ -29,7 +29,7 @@ pub(crate) async fn handle_query(
     state: &State<RwLock<SharedConnections>>,
     mut model_retriever: ModelGetter<'_>,
     query: &AbstractQuery<'_>,
-) -> Result<QueryResult> {
+) -> Result<ShapedResult> {
     let model = model_retriever.retrieve(query.model_id).await?;
     let result;
     match config {
@@ -55,10 +55,8 @@ pub(crate) async fn mongo_query_handler(
     model: Model,
     config: MongoDbConfig,
 ) -> Result<QueryHandler<MongoDbBuilder, MongoDbRunner>> {
-    
     use mongodb::Client;
-    let mut client_options = ClientOptions::parse(&config.conn_string)
-        .await?;
+    let mut client_options = ClientOptions::parse(&config.conn_string).await?;
     client_options.app_name = Some("DFLOW".to_string());
     let client = Client::with_options(client_options)?;
 

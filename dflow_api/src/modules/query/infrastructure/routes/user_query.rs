@@ -8,7 +8,7 @@ use crate::modules::datasource::infrastructure::factory::configuration_factory::
 use crate::modules::dmodel::infrastructure::persistence::model_getter::ModelGetter;
 use crate::modules::query::infrastructure::factory::query_handlers::handle_query;
 use crate::modules::query::model::query_builder::abstract_query::AbstractQuery;
-use crate::modules::query::model::query_runner::QueryResult;
+use crate::modules::query::model::query_runner::ShapedResult;
 use crate::modules::shared::shared_state::shared_connections::SharedConnections;
 use crate::template_dir::{http500, Error500Template};
 use crate::Db;
@@ -88,7 +88,7 @@ pub(crate) async fn user_query_handler(
     mut db: Connection<Db>,
     state: &State<RwLock<SharedConnections>>,
     user_query: Json<UserQueryRequest<'_>>,
-) -> Result<Json<QueryResult>, (Status, Error500Template)> {
+) -> Result<Json<ShapedResult>, (Status, Error500Template)> {
     let model_configuration = configuration_factory(user_query.datasource_id, &mut db)
         .await
         .map_err(|e| http500(e))?;

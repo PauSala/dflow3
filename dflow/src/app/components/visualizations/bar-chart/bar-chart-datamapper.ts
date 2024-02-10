@@ -7,7 +7,7 @@ export interface BarChartData {
 }
 
 export const barChartDataMapper: ChartDataMapper<BarChartData> = (i: GraphicableData) => {
-    if (i.categorycalFields.length !== 1) {
+    if (i.categorycalFields.length > 2) {
         throw new Error("Line chart does not allow more thant one categorycal field");
     }
     if (i.numericalFields.length < 1) {

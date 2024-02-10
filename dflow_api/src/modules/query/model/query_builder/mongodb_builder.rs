@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use mongodb::bson::{doc, Document};
 
 use crate::modules::dmodel::model::model::Model;
@@ -9,12 +11,12 @@ use super::{
 
 pub struct MongoDbQuery {
     pub main_document: String,
-    pub columns: Vec<String>,
+    pub columns: HashMap<String, QueryColumn>,
     pub pipeline: Vec<Document>,
 }
 
 impl MongoDbQuery {
-    pub fn new(main_document: String, pipeline: Vec<Document>, columns: Vec<String>) -> Self {
+    pub fn new(main_document: String, pipeline: Vec<Document>, columns: HashMap<String, QueryColumn>) -> Self {
         Self {
             main_document,
             pipeline,
@@ -71,13 +73,27 @@ impl MongoDbBuilder {
     ) {
         for j in &query.joins {
             //Map joinDefinition to lookup:
-            //This represents: LEFT JOIN main_table (FOREIGN) ON A.main_field (FOREIGN_FIELD) = B.join_field (LOCAL_FIELD)
+            //=> LEFT JOIN main_table (FOREIGN) ON A.main_field (FOREIGN_FIELD) = B.join_field (LOCAL_FIELD)
             //local
-            let main_table = self.model.tables.get(&j.join_table_id).unwrap();
-            let local_field = main_table.columns.get(&j.join_field_id).unwrap();
+            let main_table = self
+                .model
+                .tables
+                .get(&j.join_table_id)
+                .expect("This table should exist");
+            let local_field = main_table
+                .columns
+                .get(&j.join_field_id)
+                .expect("This column should exist");
             //foreign
-            let from = self.model.tables.get(&j.main_table_id).unwrap();
-            let foreign_field = from.columns.get(&j.main_field_id).unwrap();
+            let from = self
+                .model
+                .tables
+                .get(&j.main_table_id)
+                .expect("This table should exist");
+            let foreign_field = from
+                .columns
+                .get(&j.main_field_id)
+                .expect("This column should exist");
 
             //If localField is not the base document it must be referenced as [foreign_document].[field_name]
             let local_field_is_main_table = main_collection_id != &j.join_table_id;
@@ -144,10 +160,8 @@ impl MongoDbBuilder {
         let mut group = Document::new();
         for a in aggregated_fields {
             let field_name = self.get_field_name(main_collection_id, a);
-            let aggregation = self.handle_aggregation(a.aggregation, &field_name);
-            if let Some(agg) = aggregation {
-                group.insert(&field_name.replace(".", "_"), agg);
-            }
+            self.handle_aggregation(a.aggregation, &field_name)
+                .and_then(|agg| group.insert(&field_name.replace(".", "_"), agg));
         }
         group.insert("_id", id);
         pipeline.push(doc! {
@@ -161,26 +175,26 @@ impl MongoDbBuilder {
         pipeline: &mut Vec<Document>,
         group_fields: &Vec<&QueryColumn>,
         aggregated_fields: &Vec<&QueryColumn>,
-    ) -> Vec<String> {
+    ) -> HashMap<String, QueryColumn> {
         let mut project = Document::new();
         //Don't send _id group by default
         project.insert("_id", 0);
-        let mut columns: Vec<String> = vec![];
+        let mut col_map: HashMap<String, QueryColumn> = HashMap::new();
 
         for a in aggregated_fields {
-            columns.push(a.column_name.to_owned());
             let field_name = self.get_field_name(main_collection_id, a).replace(".", "_");
+            col_map.insert(field_name.clone(), (*a).clone());
             project.insert(&field_name, 1);
         }
 
         for g in group_fields {
-            columns.push(g.column_name.to_owned());
             let field_name = self.get_field_name(main_collection_id, g).replace(".", "_");
-            let field_value = format!("_id.{}", field_name.clone()).to_owned();
+            col_map.insert(field_name.clone(), (*g).clone());
+            let field_value = format!("_id.{}", &field_name);
             project.insert(&field_name, format!("${}", &field_value));
         }
         pipeline.push(doc! {"$project": project});
-        columns
+        col_map
     }
 }
 
@@ -218,7 +232,12 @@ impl QueryBuilder for MongoDbBuilder {
         );
 
         MongoDbQuery::new(
-            query.columns.first().unwrap().table_name.to_owned(),
+            query
+                .columns
+                .first()
+                .expect("At least one element should exist")
+                .table_name
+                .to_owned(),
             pipeline,
             columns,
         )

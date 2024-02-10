@@ -1,18 +1,6 @@
-import { UserQuery } from "../../user-query/model/user-query";
-import { numericalFieldsFromUserQuery, categorycalFieldsFromUserQuery } from "../../user-query/services/data-mapping/mappers";
+import { QueryResponse } from "../../user-query/services/query";
 import { VisualizationValidator } from "../types";
 
-export const PieChartValidator: VisualizationValidator = (data: UserQuery) => {
-    let isValid = true;
-    let numericFields = numericalFieldsFromUserQuery(data);
-    let categoricalFields = categorycalFieldsFromUserQuery(data);
-
-    if (numericFields.length !== 1) {
-        isValid = false;
-    }
-    if (categoricalFields.length !== 1) {
-        isValid = false;
-    }
-
-    return isValid
+export const PieChartValidator: VisualizationValidator = (data: QueryResponse) => {
+    return false
 };

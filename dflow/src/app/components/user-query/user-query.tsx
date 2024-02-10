@@ -12,6 +12,7 @@ import { postQuery } from "./services/query";
 import { PreviewTable } from "./preview-table";
 import { UserQueryState } from "./services/query-from-builder";
 import { ActionButton } from "./actions/action-button";
+import { queryToLabelsValues } from "./services/data-mapping/mappers";
 
 export function UserQuery({
   model,
@@ -94,7 +95,13 @@ export function UserQuery({
     const user_query = queryBuilder.build();
     postQuery(user_query)
       .then((res) => {
-        setPreview({ columns: res.columns, data: res.data.slice(0, 4) });
+        setPreview(() => {
+          const parsed = queryToLabelsValues(res);
+          return {
+            columns: parsed.labels,
+            data: parsed.values
+          }
+        });
         setShowPreview(true);
       })
       .catch((e) => console.log(e));

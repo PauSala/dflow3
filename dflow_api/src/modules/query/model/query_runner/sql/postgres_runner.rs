@@ -3,8 +3,12 @@ use std::collections::HashMap;
 use anyhow::{Ok, Result};
 use deadpool_postgres::Object as Client;
 
-use crate::modules::{dmodel::model::model::TypeAlias, query::model::{query_builder::abstract_query::AbstractQuery, query_runner::ColumnReturnDataType}};
-
+use crate::modules::{
+    dmodel::model::model::TypeAlias,
+    query::model::{
+        query_builder::abstract_query::AbstractQuery, query_runner::ReturnDataType,
+    },
+};
 
 pub struct PostgresRunner {
     client: Client,
@@ -19,7 +23,7 @@ impl PostgresRunner {
         &self,
         query: &str,
         abstract_query: &AbstractQuery<'_>,
-    ) -> Result<Vec<Vec<ColumnReturnDataType>>> {
+    ) -> Result<Vec<Vec<ReturnDataType>>> {
         let columns = abstract_query.get_columns();
         let mut column_map = HashMap::new();
         for col in columns {
@@ -27,7 +31,7 @@ impl PostgresRunner {
         }
         let statement = self.client.prepare(&query).await?;
         let rows = self.client.query(&statement, &[]).await?;
-        let mut data: Vec<Vec<ColumnReturnDataType>> = Vec::new();
+        let mut data: Vec<Vec<ReturnDataType>> = Vec::new();
         for row in rows.iter() {
             let mut row_data = Vec::new();
             for (col_index, col) in row.columns().iter().enumerate() {
@@ -36,19 +40,19 @@ impl PostgresRunner {
                 match m.data_type {
                     TypeAlias::Integer | TypeAlias::Float => {
                         let v: Option<f64> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Number(v));
+                        row_data.push(ReturnDataType::Number(v));
                     }
                     TypeAlias::Bool => {
                         let v: Option<bool> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Bool(v));
+                        row_data.push(ReturnDataType::Bool(v));
                     }
                     TypeAlias::Text => {
                         let v: Option<String> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Text(v));
+                        row_data.push(ReturnDataType::Text(v));
                     }
                     TypeAlias::Date => {
                         let v: Option<String> = row.get(col_index);
-                        row_data.push(ColumnReturnDataType::Date(v));
+                        row_data.push(ReturnDataType::Date(v));
                     }
                     TypeAlias::Array(_) => {}
                 }

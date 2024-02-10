@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { UserQueryBuilder } from "../model/user-query";
 import ChartSelector from "../selectors/charts/chart-selector";
-import { VisualizationType, visualizationValidatorProvider } from "../../visualizations/types";
+import {
+  VisualizationType,
+  visualizationValidatorProvider,
+} from "../../visualizations/types";
 import { VisualizationRenderer } from "../../visualizations/chart-renderer";
 import { QueryResponse, postQuery } from "../services/query";
 
@@ -24,34 +27,46 @@ export default function Visualization({
   queryBuilder: UserQueryBuilder;
   onChartType: (ct: VisualizationType) => void;
 }) {
+
   const [validated, setValidated] = useState<DrawableChartsState>(
     defaultDrawableChartState
   );
   const [chartType, setChartType] = useState<VisualizationType>("table");
-  const [data, setData] = useState<QueryResponse>({ columns: [], data: [] });
+  const [data, setData] = useState<QueryResponse>({
+    categorical_fields: [],
+    numerical_fields: [],
+    count_categorical: 0,
+    count_numerical: 0,
+  });
 
   useEffect(() => {
     const userQuery = queryBuilder.build();
-    setValidated(() => {
-      return {
-        bar: { enabled: visualizationValidatorProvider("bar")(userQuery), name: "bar" },
-        hBar: {
-          enabled: visualizationValidatorProvider("hBar")(userQuery),
-          name: "hBar",
-        },
-        line: {
-          enabled: visualizationValidatorProvider("line")(userQuery),
-          name: "line",
-        },
-        pie: { enabled: visualizationValidatorProvider("pie")(userQuery), name: "pie" },
-        table: {
-          enabled: visualizationValidatorProvider("table")(userQuery),
-          name: "table",
-        },
-      };
-    });
     const getData = async () => {
       let data = await postQuery(userQuery);
+      setValidated(() => {
+        return {
+          bar: {
+            enabled: visualizationValidatorProvider("bar")(data),
+            name: "bar",
+          },
+          hBar: {
+            enabled: visualizationValidatorProvider("hBar")(data),
+            name: "hBar",
+          },
+          line: {
+            enabled: visualizationValidatorProvider("line")(data),
+            name: "line",
+          },
+          pie: {
+            enabled: visualizationValidatorProvider("pie")(data),
+            name: "pie",
+          },
+          table: {
+            enabled: visualizationValidatorProvider("table")(data),
+            name: "table",
+          },
+        };
+      });
       setData(data);
     };
     getData();

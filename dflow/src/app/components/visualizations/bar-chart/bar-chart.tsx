@@ -18,7 +18,7 @@ import { defaultColorPalette } from "../../../theme/chart-palette";
 
 
 export default function BarChartWrapper({ chartData }: VisualizationWrapperProps) {
-  const mapped: BarChartData = barChartDataMapper(
+  const mapped = barChartDataMapper(
     queryToGraphicable({ q: chartData.userQuery, r: chartData.data })
   );
   return (
